@@ -1,0 +1,1 @@
+import{w as e}from"./index-Bw7uD0s8.js";function t(){let t=e();function n(e){t.add({severity:`error`,summary:`Failed to load data`,detail:`${e} could not be loaded.`,life:5e3})}return{notifyError:n}}export{t};

@@ -82,8 +82,6 @@ All of these are set inside `AddNafasServer(options => { ... })`.
 - [`Nafas.Dashboard.TestHost/`](Nafas.Dashboard.TestHost) — a minimal
   ASP.NET Core app used to manually verify the package end to end; not a
   usage example to copy patterns from.
-- [`CLAUDE.md`](CLAUDE.md) — architecture notes and conventions for this
-  codebase.
 
 ## License
 

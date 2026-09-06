@@ -1,4 +1,4 @@
-import{Ft as e,T as t,it as n,jt as r,v as i,wt as a}from"./index-BwHLtS4M.js";var o=t.extend({name:`skeleton`,style:`
+import{Ft as e,T as t,it as n,jt as r,v as i,wt as a}from"./index-Bw7uD0s8.js";var o=t.extend({name:`skeleton`,style:`
     .p-skeleton {
         display: block;
         overflow: hidden;

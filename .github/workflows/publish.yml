@@ -1,0 +1,93 @@
+name: Publish to NuGet
+
+# Two ways to run this:
+#   1. Push a tag like "v0.2.0" -- builds and publishes that exact version.
+#      Tagging a release IS the deliberate "publish this" signal, so this
+#      path always pushes to nuget.org (no extra confirmation gate).
+#   2. Manually via "Run workflow" (workflow_dispatch) -- defaults to a dry
+#      run (build + pack only, no push) unless the "publish" input is
+#      explicitly set to true. This is the safety rail for testing the
+#      pipeline itself without risking an accidental, irreversible publish.
+#
+# Either way, NUGET_API_KEY must exist as a repository secret
+# (Settings -> Secrets and variables -> Actions) before any push step can
+# succeed -- it is never generated or handled by this workflow itself.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version to pack (blank = use Nafas.Observability.csproj's own <Version>)"
+        required: false
+        type: string
+      publish:
+        description: "Actually push to nuget.org (unchecked = dry run: build + pack only)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: Nafas.Observability/ClientApp/package-lock.json
+
+      # Rebuild the dashboard UI from source rather than trusting whatever
+      # happens to be committed in wwwroot/ -- catches the mistake of
+      # tagging a release after a ClientApp change that was never rebuilt
+      # and re-synced locally (see ../CLAUDE.md's own build/embed workflow
+      # notes, now this repo's own README instead).
+      - name: Build dashboard UI (ClientApp)
+        working-directory: Nafas.Observability/ClientApp
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync built UI into wwwroot
+        working-directory: Nafas.Observability
+        run: |
+          rm -rf wwwroot/assets wwwroot/index.html wwwroot/favicon.svg wwwroot/icons.svg
+          cp -r ClientApp/dist/. wwwroot/
+
+      - name: Determine package version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Strip the leading "v" from a tag like "v0.2.0" -> "0.2.0".
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved package version: '${VERSION:-<csproj default>}'"
+
+      - name: dotnet pack
+        working-directory: Nafas.Observability
+        run: |
+          if [ -n "${{ steps.version.outputs.version }}" ]; then
+            dotnet pack -c Release -o ../artifacts -p:Version=${{ steps.version.outputs.version }}
+          else
+            dotnet pack -c Release -o ../artifacts
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*.nupkg
+
+      - name: Push to NuGet
+        if: github.event_name == 'push' || inputs.publish == true
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

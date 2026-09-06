@@ -1,0 +1,786 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "loading": "Loading…",
+    "refresh": "Refresh",
+    "refreshSection": "Refresh this section"
+  },
+  "sidebar": {
+    "ariaLabel": "Main navigation",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "signals": "SIGNALS",
+    "nav": {
+      "dashboard": "Dashboard",
+      "logs": "Logs",
+      "metrics": "Metrics",
+      "traces": "Traces",
+      "alerts": "Alerts"
+    },
+    "status": {
+      "operational": "All systems operational",
+      "regions": "7 regions · 0 incidents"
+    }
+  },
+  "topbar": {
+    "env": {
+      "prod": "prod"
+    },
+    "timeRangeAriaLabel": "Dashboard time range",
+    "live": "Live",
+    "theme": {
+      "toggleToLight": "Switch to light theme",
+      "toggleToDark": "Switch to dark theme"
+    },
+    "direction": {
+      "toggleToLtr": "Switch to left-to-right",
+      "toggleToRtl": "Switch to right-to-left"
+    },
+    "language": {
+      "ariaLabel": "Language",
+      "en": "English",
+      "fa": "Persian"
+    },
+    "tenant": {
+      "select": "Select tenant"
+    },
+    "account": {
+      "title": "Account",
+      "profile": "Profile",
+      "settings": "Settings",
+      "help": "Help",
+      "upgradePlan": "Upgrade plan",
+      "logOut": "Log out"
+    }
+  },
+  "profileDialog": {
+    "title": "Profile",
+    "changePhoto": "Change photo",
+    "unnamedUser": "Unnamed user",
+    "avatarHint": "JPG or PNG, up to 2MB",
+    "personalInfo": "Personal information",
+    "firstName": "First name",
+    "middleName": "Middle name",
+    "lastName": "Last name",
+    "contactWork": "Contact & work",
+    "phone": "Phone",
+    "jobPosition": "Job position",
+    "jobPositionPlaceholder": "e.g. Senior .NET Developer",
+    "department": "Department",
+    "departmentPlaceholder": "e.g. Platform Engineering",
+    "timezone": "Time zone",
+    "selectTimezone": "Select time zone",
+    "saveFailed": "Could not save changes.",
+    "sessions": {
+      "title": "Current sessions",
+      "logoutOthers": "Log out from all other devices",
+      "empty": "No active sessions.",
+      "thisDevice": "This device",
+      "unknownIp": "Unknown IP",
+      "logout": "Log out",
+      "activeNow": "Active now",
+      "revokeFailed": "Could not log out that device.",
+      "logoutOthersFailed": "Could not log out other devices."
+    }
+  },
+  "settingsDialog": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "account": "Account",
+      "organization": "Organization",
+      "privacy": "Privacy",
+      "billing": "Billing",
+      "usage": "Usage"
+    },
+    "organization": {
+      "tenants": {
+        "title": "Tenants",
+        "limitCapped": "{current} / {max} tenants ({plan})",
+        "limitUnlimited": "{current} tenants ({plan}, unlimited)",
+        "atLimitHint": "Your plan ({plan}) allows up to {max} tenant(s). Upgrade your plan to create more.",
+        "noPermissionHint": "Only an organization owner or admin can create tenants.",
+        "empty": "No tenants yet.",
+        "current": "Current",
+        "viewServices": "View services",
+        "add": "Add tenant",
+        "create": "Create tenant",
+        "createFailed": "Could not create the tenant."
+      },
+      "services": {
+        "title": "Services",
+        "tenantPicker": "Tenant",
+        "limitCapped": "{current} / {max} services ({plan})",
+        "limitUnlimited": "{current} services ({plan}, unlimited)",
+        "atLimitHint": "Your plan ({plan}) allows up to {max} service(s). Upgrade your plan to create more.",
+        "noPermissionHint": "Only a tenant editor or admin can create services.",
+        "empty": "No services in this tenant yet.",
+        "add": "Add service",
+        "create": "Create service",
+        "createFailed": "Could not create the service."
+      }
+    },
+    "general": {
+      "appearance": "Appearance",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "textDirection": "Text direction",
+      "ltr": "LTR",
+      "rtl": "RTL",
+      "language": "Language"
+    },
+    "account": {
+      "sectionTitle": "Account",
+      "email": "Email",
+      "confirmed": "Confirmed",
+      "notConfirmed": "Not confirmed",
+      "currentPassword": "Current password",
+      "currentPasswordHint": "Only required if you're setting a new password.",
+      "newPassword": "New password",
+      "saveChanges": "Save changes",
+      "saveSuccess": "Saved. If you changed your email, confirm it via the link sent to the new address.",
+      "saveFailed": "Could not save changes.",
+      "twoFactor": {
+        "title": "Two-factor authentication",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "recoveryCodesLeft": "{count} recovery codes left",
+        "scanHint": "Scan this QR code with an authenticator app, then enter the 6-digit code it shows.",
+        "qrAlt": "Two-factor authentication QR code",
+        "hideManualKey": "Hide manual entry key",
+        "showManualKey": "Can't scan the code? Enter it manually",
+        "enable": "Enable",
+        "disableAction": "Disable two-factor",
+        "regenerateCodes": "Regenerate recovery codes",
+        "enabledMessage": "Two-factor authentication enabled.",
+        "invalidCode": "The verification code was invalid.",
+        "disabledMessage": "Two-factor authentication disabled.",
+        "disableFailed": "Could not disable two-factor authentication.",
+        "codesRegenerated": "New recovery codes generated — save them somewhere safe.",
+        "regenerateFailed": "Could not generate new recovery codes.",
+        "saveCodesHint": "Save these recovery codes — each can be used once:"
+      },
+      "linkedAccounts": {
+        "title": "Linked accounts",
+        "empty": "No external accounts linked. You can link Google, Microsoft, Apple, or GitHub from the sign-in page.",
+        "unlink": "Unlink"
+      },
+      "dangerZone": {
+        "title": "Danger zone",
+        "deactivate": "Deactivate account",
+        "deactivateHint": "Disable sign-in and sign out of every device immediately. Your data isn't deleted -- contact support to reactivate.",
+        "confirmText": "Are you sure? You'll be signed out everywhere right away and won't be able to sign back in until support reactivates the account.",
+        "confirmButton": "Yes, deactivate my account",
+        "deactivateFailed": "Could not deactivate the account."
+      }
+    },
+    "privacy": {
+      "piiMasking": {
+        "title": "PII masking",
+        "hint": "Redact sensitive fields in ingested logs & traces before they're queryable.",
+        "fields": {
+          "email": "Email addresses",
+          "ip": "IP addresses",
+          "phone": "Phone numbers",
+          "token": "Auth tokens & API keys",
+          "card": "Credit card numbers"
+        }
+      },
+      "yourData": {
+        "title": "Your data",
+        "export": "Export my data",
+        "exportHint": "Get a downloadable copy of your account and organization's telemetry data.",
+        "requestExport": "Request export",
+        "exportRequested": "Export requested — we'll email a download link when it's ready.",
+        "purge": "Purge my data",
+        "purgeHint": "Permanently delete stored telemetry before it expires on its own.",
+        "requestPurge": "Request purge",
+        "purgeConfirmText": "This permanently deletes all stored logs, metrics, traces, and profiles for your organization. This cannot be undone.",
+        "purgeConfirmButton": "Yes, purge my data",
+        "purgeRequested": "Purge requested — this can take up to 24 hours to complete."
+      },
+      "auditLog": {
+        "title": "Audit log",
+        "empty": "No activity yet.",
+        "unknownDevice": "Unknown device",
+        "unknownIp": "Unknown IP"
+      },
+      "ipAllowList": {
+        "title": "IP allow-list",
+        "hint": "Restrict sign-in and API access to specific IP addresses or ranges.",
+        "empty": "No entries yet.",
+        "remove": "Remove",
+        "placeholder": "e.g. 203.0.113.0/24",
+        "add": "Add"
+      }
+    },
+    "billing": {
+      "currentPlan": {
+        "title": "Current plan",
+        "planSuffix": "plan",
+        "free": "Free",
+        "active": "Active",
+        "paymentOverdue": "Payment overdue",
+        "perMonth": "/month",
+        "renews": "· renews {date}",
+        "cancelSubscription": "Cancel subscription",
+        "cancelConfirmText": "Cancel your subscription and move back to the Free plan? This takes effect immediately, not at the end of the current billing period.",
+        "keepPlan": "Keep plan",
+        "confirmCancel": "Yes, cancel",
+        "cancelFailed": "Could not cancel the subscription.",
+        "freeHint": "You're on the Free plan. Upgrade anytime from the account menu."
+      },
+      "wallet": {
+        "title": "Wallet",
+        "hint": "Charge your balance and see every deduction, in one place.",
+        "manage": "Manage wallet"
+      },
+      "paymentHistory": {
+        "title": "Payment history",
+        "empty": "No payments yet."
+      }
+    },
+    "usage": {
+      "planLimits": {
+        "title": "Plan limits",
+        "windowHint": "Requests are counted per {seconds}s window at the gateway.",
+        "rateLimit": "Rate limit",
+        "requests": "{used} / {limit} requests",
+        "noSubscription": "No active subscription was found for your organization."
+      },
+      "includedTelemetry": {
+        "title": "Included telemetry",
+        "included": "Included",
+        "notIncluded": "Not included",
+        "rows": {
+          "logs": "Logs",
+          "metrics": "Metrics",
+          "traces": "Traces",
+          "profiles": "Profiles"
+        }
+      },
+      "apiKeys": {
+        "title": "API keys",
+        "hint": "Used by ingestion agents (Telegraf, OpenTelemetry SDK) to authenticate at the gateway — not your login.",
+        "ingestionEndpoint": "Ingestion endpoint",
+        "copy": "Copy",
+        "copied": "Copied",
+        "untitledKey": "Untitled key",
+        "createdMeta": "Created {created} · Last used {lastUsed}",
+        "never": "Never",
+        "revoke": "Revoke",
+        "empty": "No API keys yet.",
+        "generateNew": "Generate new key",
+        "needsService": "Create a service first before generating an API key.",
+        "copyNowHint": "Copy this key now — you won't be able to see it again:",
+        "done": "Done",
+        "label": "Label (optional)",
+        "labelPlaceholder": "e.g. Production",
+        "service": "Service",
+        "selectService": "Select a service",
+        "generateKey": "Generate key",
+        "generateFailed": "Could not generate a new API key."
+      }
+    }
+  },
+  "dashboard": {
+    "timeRange": {
+      "24h": "Last 24H",
+      "7d": "Last 7 Days",
+      "30d": "Last 30 Days",
+      "180d": "Last 180 Days",
+      "365d": "Last 365 Days"
+    },
+    "title": "Signal Overview",
+    "subtitle": "Real-time signal health across all services",
+    "serviceFilter": {
+      "label": "Service",
+      "all": "All Services"
+    },
+    "autoRefresh": {
+      "label": "Auto-refresh",
+      "off": "Off",
+      "every3m": "Every 3m",
+      "every5m": "Every 5m",
+      "every7m": "Every 7m",
+      "every10m": "Every 10m"
+    },
+    "kpi": {
+      "totalLogs": "Total Logs",
+      "activeTraces": "Active Traces",
+      "metricEndpoints": "Metric Endpoints",
+      "errorRate": "Error Rate",
+      "trendNotAvailable": "Trend not available",
+      "ofTotalHealthy": "{total} healthy",
+      "scraping": "{n} scraping"
+    },
+    "charts": {
+      "logVolumeOverTime": "Log Volume Over Time",
+      "logVolumeLegend": "Log Volume",
+      "topServicesByErrorRate": "Top Services by Error Rate",
+      "traceLatencyHeatmap": "Trace Latency Heatmap",
+      "bucketLabelMinutes": "{m}m buckets",
+      "bucketLabelHours": "{h}h buckets",
+      "bucketLabelDaily": "daily buckets",
+      "heatmapHourly": "hourly",
+      "heatmapDaily": "daily"
+    },
+    "recentLogs": {
+      "title": "Recent Critical Logs",
+      "last1h": "LAST 1H",
+      "live": "LIVE",
+      "connecting": "CONNECTING…",
+      "openInLogs": "Open in Logs →",
+      "empty": "No critical logs in the last hour"
+    }
+  },
+  "auth": {
+    "brandTag": "Observability & Telemetry Platform"
+  },
+  "logs": {
+    "title": "Log Explorer",
+    "subtitle": "Historical search · last 24 hours",
+    "filter": "Filter",
+    "export": "Export",
+    "filterByService": "Filter by service...",
+    "searchPlaceholder": "Search logs...",
+    "clearFilters": "Clear Filters",
+    "loadFailed": "Failed to load logs",
+    "noneFound": "No logs found",
+    "hideDetails": "▲ Hide details",
+    "showDetails": "▼ Show details",
+    "fullMessage": "Full Message",
+    "attributes": "Attributes",
+    "copyTraceId": "Copy TraceId: {traceId}",
+    "stats": {
+      "total": "Total",
+      "errors": "Errors",
+      "warnings": "Warnings"
+    },
+    "columns": {
+      "timestamp": "Timestamp",
+      "level": "Level",
+      "service": "Service",
+      "traceId": "Trace ID",
+      "message": "Message"
+    },
+    "levels": {
+      "all": "All Levels",
+      "error": "Error",
+      "warn": "Warn",
+      "info": "Info",
+      "debug": "Debug"
+    }
+  },
+  "metrics": {
+    "title": "Metrics",
+    "subtitle": "Service-level metrics across all instrumented signals",
+    "serviceOverview": "Service Overview",
+    "loadFailed": "Failed to load service overview",
+    "noneFound": "No services found",
+    "kpi": {
+      "cpuUsage": "CPU Usage",
+      "memoryUsage": "Memory Usage",
+      "requestRate": "Request Rate",
+      "p99Latency": "P99 Latency"
+    },
+    "charts": {
+      "cpuTitle": "CPU Usage — 24h",
+      "memTitle": "Memory Usage — 24h",
+      "subtitle": "All services · avg% · 30m buckets",
+      "cpuFailed": "Failed to load CPU usage",
+      "memFailed": "Failed to load memory usage",
+      "xAxis": {
+        "24hAgo": "24h ago",
+        "18h": "18h",
+        "12h": "12h",
+        "6h": "6h",
+        "now": "now"
+      }
+    },
+    "columns": {
+      "avgCpu": "Avg CPU",
+      "avgMemory": "Avg Memory"
+    }
+  },
+  "traces": {
+    "title": "Traces",
+    "subtitle": "Distributed trace explorer",
+    "searchByTraceId": "Search by Trace ID...",
+    "clear": "Clear",
+    "loadFailed": "Failed to load traces",
+    "noneFound": "No traces found",
+    "rootSpan": "Root Span",
+    "duration": "Duration",
+    "stats": {
+      "totalTraces": "Total Traces · 1h",
+      "avgDuration": "Avg Duration",
+      "errorTraces": "Error Traces",
+      "p95Duration": "P95 Duration"
+    },
+    "status": {
+      "label": "Status",
+      "success": "success",
+      "error": "error"
+    }
+  },
+  "wallet": {
+    "title": "Wallet",
+    "subtitle": "Shared balance across your organization's tenants and services.",
+    "chargeWallet": "Charge wallet",
+    "rial": "Rial",
+    "notAvailable": "N/A",
+    "topUp": "Wallet top-up",
+    "remainingBalance": "Remaining balance",
+    "totalCharged": "Total charged",
+    "totalSpent": "Total spent",
+    "balanceLoadFailed": "Couldn't load your balance — try refreshing.",
+    "history": "History",
+    "noHistory": "No payments or charges yet.",
+    "chargeDialogSubtitle": "You'll be redirected to the bank to complete payment.",
+    "amountRial": "Amount (Rial)",
+    "pay": "Pay",
+    "invalidAmount": "Enter a valid amount (minimum 1,000 Rial).",
+    "chargeStartFailed": "Could not start the payment. Please try again.",
+    "banner": {
+      "success": "Payment succeeded{ref}. Your balance has been updated.",
+      "reference": " — reference {ref}",
+      "failed": "Payment was not completed. No amount was deducted — you can try again."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "opened": "Alert triggered",
+    "resolved": "Alert resolved"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "subtitle": "Rules that watch your telemetry, and the incidents they've caught.",
+    "newRule": "New rule",
+    "noTenant": "No tenant selected yet.",
+    "loading": "Loading…",
+    "noRules": "No alert rules yet.",
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete rule \"{name}\"? This cannot be undone.",
+    "createError": "Could not create the rule.",
+    "updateError": "Could not update the rule.",
+    "rulesTitle": "Rules",
+    "anyService": "any service",
+    "ruleType": {
+      "threshold": "Threshold",
+      "absence": "Absence (no logs)"
+    },
+    "metric": {
+      "errorRate": "Error rate",
+      "logVolume": "Log volume"
+    },
+    "summary": {
+      "threshold": "{metric} > {threshold} over {window}m — {service}",
+      "absence": "No logs for {window}m — {service}"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Checkout API error spike",
+      "ruleType": "Rule type",
+      "service": "Service (optional)",
+      "metric": "Metric",
+      "threshold": "Threshold",
+      "window": "Window (minutes)",
+      "cancel": "Cancel",
+      "create": "Create rule",
+      "save": "Save",
+      "confirmDelete": "Yes, delete",
+      "enabledToggle": "Rule enabled"
+    },
+    "incidents": {
+      "title": "Incidents",
+      "none": "No incidents yet.",
+      "rule": "Rule",
+      "status": "Status",
+      "detail": "Detail",
+      "triggered": "Triggered",
+      "resolved": "Resolved",
+      "open": "open",
+      "resolvedStatus": "resolved"
+    }
+  },
+  "charts": {
+    "noData": "No data available",
+    "noTraceData": "No trace data available",
+    "logVolumeFailed": "Failed to load log volume data",
+    "errorRateFailed": "Failed to load error rate data",
+    "latencyHeatmapFailed": "Failed to load latency heatmap"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Use your email and password to continue",
+    "email": "Email",
+    "emailInvalid": "Enter a valid email address",
+    "password": "Password",
+    "submit": "Sign in",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create an account",
+    "orContinueWith": "or continue with",
+    "errors": {
+      "lockedOut": "This account is locked out. Try again later.",
+      "invalidCredentials": "Incorrect email or password.",
+      "socialFailed": "Social sign-in failed. Please try again or use your email and password."
+    },
+    "twoFactor": {
+      "title": "Two-factor verification",
+      "subtitle": "This account has 2FA enabled. Enter the code from your authenticator app",
+      "orRecovery": "or use a recovery code.",
+      "verifying": "Verifying…",
+      "incorrectCode": "Incorrect code, try again.",
+      "recoveryCode": "Recovery code",
+      "verify": "Verify",
+      "backToSignIn": "← Back to sign in",
+      "useAuthenticatorInstead": "Use authenticator code instead",
+      "useRecoveryInstead": "Use a recovery code instead"
+    }
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Sign up with your work email",
+    "confirmPassword": "Confirm password",
+    "passwordsDontMatch": "Passwords do not match",
+    "submit": "Create account",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "errors": {
+      "generic": "Could not create the account. Please try again."
+    },
+    "checkEmail": {
+      "title": "Check your email",
+      "sentTo": "We sent a confirmation link to",
+      "noRealMail": "In this environment there's no real mail delivery yet — check the identity API's console log for the link."
+    },
+    "legalConsent": "By creating an account, you agree to Nafas's {terms} and {privacy}."
+  },
+  "forgotPassword": {
+    "title": "Forgot password",
+    "subtitle": "Enter your email and we'll send you a reset code",
+    "submit": "Send reset code",
+    "haveResetCode": "I have a reset code →",
+    "checkEmail": {
+      "sentTo": "If an account exists for",
+      "sentToSuffix": ", we've sent a password reset code to it.",
+      "noRealMail": "In this environment there's no real mail delivery yet — check the identity API's console log for the code."
+    }
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "subtitle": "Enter the code we sent you along with your new password",
+    "resetCode": "Reset code",
+    "resetCodePlaceholder": "Paste the code from the email",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "submit": "Reset password",
+    "errors": {
+      "invalidCode": "The reset code is invalid or has expired."
+    },
+    "done": {
+      "title": "Password updated",
+      "subtitle": "Your password has been reset. You can now sign in with your new password.",
+      "goToSignIn": "Go to sign in →"
+    }
+  },
+  "confirmEmail": {
+    "checking": {
+      "title": "Confirming your email…",
+      "subtitle": "Just a moment."
+    },
+    "success": {
+      "title": "Email confirmed",
+      "subtitle": "Your email address has been confirmed. You can now sign in."
+    },
+    "invalid": {
+      "title": "Invalid link",
+      "subtitle": "This confirmation link is missing required information."
+    },
+    "failed": {
+      "title": "Confirmation failed",
+      "subtitle": "This link may have expired or already been used."
+    }
+  },
+  "authCallback": {
+    "title": "Signing you in…",
+    "subtitle": "Completing sign-in with your provider. Just a moment."
+  },
+  "onboarding": {
+    "brandTag": "Let's set up your workspace",
+    "continue": "Continue",
+    "name": "Name",
+    "displayCaption": "Display caption",
+    "captionRequired": "Caption is required",
+    "steps": {
+      "organization": "Organization",
+      "tenant": "Tenant",
+      "service": "Service",
+      "agentSetup": "Agent Setup",
+      "waitingForData": "Waiting for Data"
+    },
+    "errors": {
+      "invalidSession": "Your session appears invalid. Please sign in again."
+    },
+    "organization": {
+      "title": "Create your organization",
+      "subtitle": "This is the billing and workspace unit for your whole account.",
+      "nameRequired": "Organization name is required",
+      "subdomain": "Subdomain (optional)",
+      "createError": "Could not create the organization. Please try again."
+    },
+    "tenant": {
+      "title": "Create your first tenant",
+      "subtitle": "A tenant is an isolated environment — e.g. a branch or business unit.",
+      "nameRequired": "Tenant name is required",
+      "slug": "Slug (optional)",
+      "missingContext": "Missing organization context. Please restart onboarding.",
+      "createError": "Could not create the tenant. Please try again."
+    },
+    "service": {
+      "title": "Register your first service",
+      "subtitle": "This is the system you'll send telemetry from (a website, API, etc.).",
+      "nameRequired": "Service name is required",
+      "otlpName": "OTLP service.name",
+      "otlpNameHint": "Must exactly match",
+      "otlpNameError": "This must match resource.attributes[\"service.name\"] exactly",
+      "agentType": "Agent type",
+      "agentTypePlaceholder": "Choose how you'll send data",
+      "agentTypeRequired": "Choose an agent type",
+      "missingContext": "Missing tenant context. Please restart onboarding.",
+      "createError": "Could not create the service. Please try again."
+    },
+    "agentSetup": {
+      "title": "Set up your agent",
+      "subtitle": "Your API key is shown only once — copy it now and store it somewhere safe.",
+      "apiKey": "API key",
+      "configSnippet": "Configuration snippet",
+      "wordpressSnippet": "1. Install the Nafas Observability plugin from your WordPress admin.\n2. Under Settings > Nafas, paste this API key:\n   {apiKey}\n3. Set the service name to: {name}"
+    },
+    "waiting": {
+      "title": "Waiting for your first data…",
+      "subtitle": "Once your agent starts sending telemetry, you'll see it show up here.",
+      "goToDashboard": "Go to dashboard",
+      "skip": "Skip for now",
+      "received": {
+        "title": "Data received!",
+        "subtitle": "Your agent is talking to Nafas. Head to the dashboard to see it live."
+      }
+    }
+  },
+  "legal": {
+    "termsOfService": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated",
+      "intro": "This document sets out the terms for using the Nafas platform — an observability and telemetry service provided by Aban. By creating an account or using the service, you agree to these terms. If you act on behalf of an organization, you confirm you have authority to accept these terms for it.",
+      "sections": [
+        {
+          "heading": "1. Description of the Service",
+          "body": "Nafas is a multi-tenant observability and telemetry platform that collects, stores, and displays logs, metrics, traces, and profiles from your infrastructure and software. The service is offered in two models: hosted (SaaS) on our own infrastructure, or a dedicated install (On-Premise) on your own infrastructure. These terms apply equally to both models unless a section explicitly says otherwise."
+        },
+        {
+          "heading": "2. Your Account",
+          "body": "You are responsible for the accuracy of the information you provide when registering, and for keeping your password and access tokens confidential. You are responsible for any activity carried out under your account, or under any account belonging to your organization. You must notify us immediately if you become aware of any unauthorized access."
+        },
+        {
+          "heading": "3. Acceptable Use",
+          "body": "Using the service for any unlawful purpose, submitting data that infringes a third party's rights, attempting unauthorized access to our infrastructure or to other tenants, circumventing rate limits, or reverse-engineering proprietary parts of the platform is prohibited. Violating this section may result in immediate suspension or termination of access."
+        },
+        {
+          "heading": "4. Your Data",
+          "body": "Ownership of the data you send to Nafas through your own instrumentation (logs, metrics, traces) always remains yours. By sending this data, you grant us a limited, non-exclusive license to process, store, and display it solely to provide, maintain, and improve the service. We do not use this data for any other purpose, such as selling it to a third party."
+        },
+        {
+          "heading": "5. Subscription, Billing, and Wallet",
+          "body": "Payments are processed through the ZarinPal payment gateway. Depending on your chosen plan, your subscription may renew automatically unless cancelled before the end of the billing period. Wallet top-ups and deductions are non-refundable except at our discretion or where required by law. Late payment may result in temporary suspension of service."
+        },
+        {
+          "heading": "6. Service Availability",
+          "body": "We aim to provide the service with the highest practical level of reliability, but — except under a separate, signed Service Level Agreement (SLA) — no guarantee of uninterrupted availability is made. Planned maintenance is communicated in advance whenever possible."
+        },
+        {
+          "heading": "7. Intellectual Property",
+          "body": "The Nafas platform, its brand, interface design, and source code (excluding your data) belong to Aban. Nothing in these terms transfers any ownership or license beyond ordinary use of the service to you."
+        },
+        {
+          "heading": "8. Limitation of Liability",
+          "body": "The service is provided \"as is.\" To the extent permitted by law, Aban is not liable for indirect or consequential damages, or for data loss caused by third-party system failures, internet outages, or misconfiguration on your own end. Our total liability in any case will not exceed the total fees you paid in the preceding three months."
+        },
+        {
+          "heading": "9. Suspension and Termination",
+          "body": "We may suspend or terminate your access, temporarily or permanently, if you violate these terms, fail to pay, or use the service in a way that harms our infrastructure or other tenants. You may also stop using the service at any time by requesting account deactivation."
+        },
+        {
+          "heading": "10. Changes to These Terms",
+          "body": "We may update these terms from time to time. Material changes will be communicated by email or an in-platform notice. Continuing to use the service after changes take effect constitutes acceptance of the new terms."
+        },
+        {
+          "heading": "11. Governing Law",
+          "body": "These terms are governed by the laws of the Islamic Republic of Iran. Any dispute, if not resolved through negotiation, will be subject to the competent courts of Iran."
+        },
+        {
+          "heading": "12. Contact Us",
+          "body": "For any questions about these terms, you can reach us through the support email address published on the platform."
+        }
+      ]
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated",
+      "intro": "This policy explains what information Aban, the provider of the Nafas platform, collects, how it is used, and what rights you have over your own data.",
+      "sections": [
+        {
+          "heading": "1. What We Collect",
+          "body": "Account information (email, hashed password), session information (IP address, user agent, sign-in/sign-out times, used for security and for the \"recent activity\" list in account settings), billing information (via the ZarinPal payment gateway), and telemetry data (logs, metrics, traces) that you send to the platform through your own instrumentation."
+        },
+        {
+          "heading": "2. How We Use This Information",
+          "body": "This information is used solely to provide and maintain the service, authenticate you and prevent unauthorized access (such as throttling failed sign-in attempts), process payments, and communicate with you about your account or the service."
+        },
+        {
+          "heading": "3. Cookies and Local Storage",
+          "body": "A secure cookie is used to keep your sign-in session active. Display preferences (language, text direction, light/dark theme) are stored in your browser's local storage and are never sent to our servers."
+        },
+        {
+          "heading": "4. Third-Party Sign-In (Google, Microsoft, Apple, GitHub)",
+          "body": "If you sign in through one of these providers, your identity is verified directly and cryptographically with that provider. The only information we receive and store from this verification is your email address, display name, and a one-way, non-reversible provider identifier — we never have access to your password or any other account information held by that provider."
+        },
+        {
+          "heading": "5. Sharing Information",
+          "body": "Billing information is shared with ZarinPal to process payments. Your data may be stored on the infrastructure of the hosting providers we use to run the service. We never sell your information to a third party for advertising purposes."
+        },
+        {
+          "heading": "6. Data Security",
+          "body": "All communication with the platform is encrypted over HTTPS. Passwords are stored hashed, access to internal infrastructure is restricted and controlled, and sensitive configuration values are never kept in public source code."
+        },
+        {
+          "heading": "7. Data Retention",
+          "body": "Account information is kept for as long as your account remains active. Telemetry data is retained according to the retention period defined by your subscription plan and is automatically deleted afterward. Following an account deletion request, your personal information is deleted or anonymized within a reasonable period, except where the law requires longer retention."
+        },
+        {
+          "heading": "8. Your Rights",
+          "body": "You can request access to your account information, correct it, or delete your account at any time from the settings section. For requests that cannot be completed through the platform itself, you can contact support directly."
+        },
+        {
+          "heading": "9. Children's Privacy",
+          "body": "The Nafas service is not designed for use by individuals under the age of 18, and we do not knowingly collect information from children."
+        },
+        {
+          "heading": "10. Changes to This Policy",
+          "body": "This policy may be updated from time to time. Material changes will be communicated by email or an in-platform notice."
+        },
+        {
+          "heading": "11. Contact Us",
+          "body": "For any questions about this policy or your information, you can reach us through the support email address published on the platform."
+        }
+      ]
+    }
+  }
+}

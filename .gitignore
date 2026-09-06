@@ -1,0 +1,29 @@
+# .NET build output
+bin/
+obj/
+*.nupkg
+*.snupkg
+
+# Node / Vite (Nafas.Observability/ClientApp)
+node_modules/
+dist/
+*.local
+.env
+.env.local
+.env.*
+
+# Nafas.Dashboard.TestHost's own runtime SQLite file -- created at runtime
+# by AddNafasServer()'s zero-config SQLite default, never a source file.
+Nafas.Dashboard.TestHost/*.db
+Nafas.Dashboard.TestHost/*.db-shm
+Nafas.Dashboard.TestHost/*.db-wal
+Nafas.Dashboard.TestHost/*.db-journal
+
+# Editors / OS
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+.DS_Store
+Thumbs.db

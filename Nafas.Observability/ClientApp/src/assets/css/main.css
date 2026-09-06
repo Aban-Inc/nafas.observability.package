@@ -1,0 +1,113 @@
+/* Vazir -- bundled locally (../fonts/vazir/*.woff2), not a CDN @import.
+   This package's whole point is running with zero external dependencies,
+   so no font here is ever fetched from Google Fonts or any other remote
+   host -- IBM Plex Sans/Mono used to be pulled in that way and have been
+   dropped entirely; where "IBM Plex Mono" still appears as a font-family
+   name elsewhere (chart ticks, code snippets), it's just a harmless unmet
+   fallback that resolves straight to the generic 'monospace' after it,
+   never a network request. RTL/Persian is now the dashboard's default
+   (see layout.store.ts) so Vazir -- which covers both Persian and Latin
+   glyphs -- leads the stack everywhere, with system-ui/sans-serif as the
+   fallback for anything it doesn't cover. SIL OFL 1.1 licensed
+   (rastikerdar/vazir-font) -- free to bundle/redistribute. */
+@font-face {
+  font-family: 'Vazir';
+  src: url('../fonts/vazir/Vazir-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vazir';
+  src: url('../fonts/vazir/Vazir-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vazir';
+  src: url('../fonts/vazir/Vazir-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  /* Theme-independent tokens */
+  --accent:         #00BFA5;
+  --accent-dark:    #00897B;
+  --accent-dim:     rgba(0,191,165,0.10);
+  --sidebar-width:  236px;
+  --sidebar-collapsed-width: 56px;
+}
+
+[data-theme="dark"] {
+  --bg-base:        #0F1117;
+  --bg-sidebar:     #12141C;
+  --bg-card:        rgba(26,29,39,0.72);
+  /* Opaque version of --bg-card -- for popovers/menus (e.g. the account
+     menu) that sit over page content and shouldn't show it through. */
+  --bg-solid:       #1A1D27;
+  --bg-hover:       rgba(255,255,255,0.04);
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-medium:  rgba(255,255,255,0.10);
+  --text-primary:   #E6E8EC;
+  --text-secondary: #9AA0AC;
+  --text-muted:     #5B6170;
+  --text-label:     #4C5260;
+  --accent-bright:  #2DD4BF;
+  --error:          #F0616D;
+  --error-dim:      rgba(240,97,109,0.14);
+  --warn:           #E8B23A;
+  --warn-dim:       rgba(232,178,58,0.14);
+  --info-dim:       rgba(0,191,165,0.14);
+}
+
+[data-theme="light"] {
+  --bg-base:        #F4F6FA;
+  --bg-sidebar:     #FFFFFF;
+  --bg-card:        rgba(255,255,255,0.90);
+  --bg-solid:       #FFFFFF;
+  --bg-hover:       rgba(0,0,0,0.04);
+  --border-subtle:  rgba(0,0,0,0.08);
+  --border-medium:  rgba(0,0,0,0.12);
+  --text-primary:   #1A1D27;
+  --text-secondary: #4A5060;
+  --text-muted:     #8A90A0;
+  --text-label:     #A0A6B4;
+  --accent-bright:  #00897B;
+  --error:          #D93025;
+  --error-dim:      rgba(217,48,37,0.10);
+  --warn:           #C07A00;
+  --warn-dim:       rgba(192,122,0,0.10);
+  --info-dim:       rgba(0,191,165,0.10);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-base);
+  font-family: 'Vazir', system-ui, sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 6px; border: 2px solid var(--bg-base); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.20); }
+
+@keyframes nafasPulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(2.6); opacity: 0; } 100% { opacity: 0; } }
+@keyframes nafasBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.font-mono { font-family: 'IBM Plex Mono', monospace; }
+
+/* PrimeVue overrides — keep selects/inputs on-brand */
+.p-select, .p-inputtext, .p-button {
+  font-family: 'Vazir', system-ui, sans-serif !important;
+}

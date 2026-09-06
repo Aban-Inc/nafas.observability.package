@@ -1,0 +1,156 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <!-- netstandard2.1's default LangVersion (8.0) predates 'or'/'and'
+         pattern combinators used in the query stores; bumping this is
+         compile-time only and doesn't change the netstandard2.1 binary
+         compatibility target. -->
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    NuGet package metadata.
+      - Version: 0.1.0, not 1.0.0, since real ingestion/alerting only just
+        landed and nothing has run this in a real deployment yet; 1.0.0
+        would overclaim stability. Bump by hand for each release (no
+        SourceLink/CI versioning set up yet).
+      - PackageLicenseFile, not PackageLicenseExpression: FSL-1.1-ALv2 isn't
+        a NuGet-recognized SPDX identifier, so the actual file is packed
+        alongside the DLL instead (see LICENSE.md's own comment history).
+      - RepositoryUrl points at the dedicated repo this package is moving to
+        (Aban-Inc/nafas.observability), not the monorepo it's currently
+        developed in, since that's where it'll actually live once
+        published, per the plan to make that repo public once this work is
+        done.
+      - PackageIcon (icon.png): a 512x512 PNG regenerated from
+        AppSidebar.vue's own former logo mark (teal gradient rounded
+        square, same wave path, same proportions), kept as the package's
+        visual identity even after that component's UI was simplified to
+        typography-only.
+  -->
+  <PropertyGroup>
+    <PackageId>Nafas.Observability</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Aban-Inc</Authors>
+    <Company>Aban-Inc</Company>
+    <Copyright>Copyright © 2026 گروه تحقیق و توسعه زیرساخت فناوری آبان</Copyright>
+    <Description>Self-hosted, embeddable observability dashboard for ASP.NET Core -- logs, metrics, traces, and alerts, with real ingestion and zero external dependencies. Distributed the way Hangfire is: one NuGet package, two calls, nothing else to deploy.</Description>
+    <PackageTags>observability;logging;metrics;tracing;monitoring;dashboard;aspnetcore;opentelemetry;alerting;apm</PackageTags>
+    <PackageProjectUrl>https://github.com/Aban-Inc/nafas.observability</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Aban-Inc/nafas.observability.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="LICENSE.md" Pack="true" PackagePath="" />
+    <!-- README.md lives at the repo root (also what GitHub itself shows),
+         not next to this csproj. PackagePath still maps it into the
+         package root so PackageReadmeFile above finds it at the name it
+         expects. -->
+    <None Include="..\README.md" Pack="true" PackagePath="README.md" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <!--
+    Needed by NafasDashboardExtensions.cs (app.UseNafasDashboard). All three
+    target netstandard2.0, so they're fine here on netstandard2.1 too:
+      - Http.Abstractions: IApplicationBuilder
+      - StaticFiles: StaticFileMiddleware, serving the embedded wwwroot
+      - FileProviders.Embedded: EmbeddedFileProvider, reading wwwroot out of
+        this assembly's own embedded resources (see the ItemGroup below)
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.0" />
+  </ItemGroup>
+
+  <!--
+    Needed by AddNafasServer and its storage/retention/alert-webhook pieces
+    (NafasServiceCollectionExtensions.cs, Storage/, ConnectionStringResolver.cs,
+    NafasRetentionHostedService.cs, NafasAlertWebhookSender.cs):
+      - Data.Sqlite / Data.SqlClient: the two free-tier storage providers
+      - Configuration.Abstractions: IConfiguration, for
+        ConnectionStringName resolution (appsettings.json's "ConnectionStrings")
+      - Configuration.ConfigurationManager: System.Configuration.ConfigurationManager,
+        the *other* ConnectionStringName source, classic web.config's
+        &lt;connectionStrings&gt;, for apps that never populate IConfiguration
+      - Hosting.Abstractions: IHostedService, for the retention sweep
+      - DependencyInjection.Abstractions: IServiceCollection extension methods
+      - Http (not just Http.Abstractions, already above): HttpClient, for
+        posting to AlertWebhookUrl
+      - Text.Json: serializing the alert webhook payload
+        (NafasAlertWebhookSender.cs)
+    All netstandard2.0-compatible.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <!-- 8.0.2, not 8.0.0: Caching.Memory 8.0.1 (below) needs >= 8.0.2 of
+         this transitively; pinning it directly here keeps the whole graph
+         on one consistent version instead of leaving it to float. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <!-- Channel of T / ChannelReader of T, used by NafasLiveFeed.cs's in-process pub/sub
+         backing the SSE streams. Not part of netstandard2.1's BCL, needs the
+         package explicitly (it's a net5.0+ built-in but a standalone
+         netstandard2.0-compatible package too). -->
+    <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <!-- Caching.Memory: in-process cache for dashboard reads (KPI/chart
+         endpoints), so a page of open dashboards doesn't hit the database on
+         every poll, and there's no Redis here (no external dependency at all
+         is the whole point), so in-memory is the equivalent for a
+         single-process embedded app. Same TTL convention the SaaS platform
+         repo's Redis cache used (CLAUDE.md: KPI 30s, charts 60s), just a
+         different cache implementation. See NafasDashboardExtensions.cs. -->
+    <!-- 8.0.0 has a known high-severity advisory (GHSA-qj66-m88j-hmgj);
+         8.0.1 has the fix. -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+  </ItemGroup>
+
+  <!--
+    Needed by Ingestion/ (real log/metric/trace capture, see that folder's
+    own comments):
+      - System.Diagnostics.DiagnosticSource: Activity/ActivitySource/
+        ActivityListener (traces) and System.Diagnostics.Metrics.Meter/
+        MeterListener (metrics) are NOT part of netstandard2.1's BCL, only of
+        .NET 5+'s; this package is what backports both APIs to
+        netstandard2.x, same reasoning as System.Threading.Channels above.
+      - Logging.Abstractions: ILoggerProvider/ILogger, for NafasLoggerProvider.
+        Already pulled in transitively by Hosting.Abstractions above; pinned
+        directly here anyway (same convention as every other transitive
+        dependency in this file) so it can't silently float to a mismatched
+        version.
+  -->
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <!--
+    The built dashboard SPA (ClientApp/, run `npm run build` there, then
+    copy ClientApp/dist/* into wwwroot/) is embedded directly into this
+    DLL, not shipped as loose files, so a consumer installs one NuGet
+    package and gets the whole dashboard with no separate static-asset
+    deployment step. Deliberately not overriding embedded-resource
+    LogicalName here, since MSBuild's default dot-joined naming
+    ("Nafas.Observability.wwwroot.assets.index-*.js") is exactly what
+    EmbeddedFileProvider's own path matching expects and is built to
+    disambiguate correctly even when filenames themselves contain dots. A
+    slash-separated LogicalName was tried first and built fine but
+    EmbeddedFileProvider couldn't resolve any file at runtime (every
+    request 500'd), don't reintroduce that.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\**" />
+  </ItemGroup>
+
+</Project>

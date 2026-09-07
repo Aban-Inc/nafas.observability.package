@@ -293,11 +293,12 @@ source on every publish, so a tagged release never ships a stale UI.
 
 ## Status
 
-`0.1.0` — real ingestion, storage, dashboard, and alert evaluation all
+Pre-1.0 (see the NuGet badge at the top of this file for the exact
+version) — real ingestion, storage, dashboard, and alert evaluation all
 work and are exercised through `Nafas.Dashboard.TestHost`, but this has
-not yet run in a production deployment. Treat it as pre-1.0: the public
-API surface (`NafasServerOptions`, `UseNafasDashboard`) is expected to
-stay stable, but has not been through a real upgrade cycle yet.
+not yet run in a production deployment. The public API surface
+(`NafasServerOptions`, `UseNafasDashboard`) is expected to stay stable,
+but has not been through a real upgrade cycle yet.
 
 ## License
 

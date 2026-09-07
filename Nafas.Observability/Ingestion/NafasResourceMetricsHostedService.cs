@@ -104,16 +104,15 @@ namespace Nafas.Observability.Ingestion
             }
         }
 
-        // GC.GetGCMemoryInfo() isn't declared in netstandard2.1's reference
-        // assembly (an API-surface gap in that particular ref assembly, not
-        // a real runtime limitation) -- every actual runtime that can host a
-        // netstandard2.1 library at all (.NET Core 3.0+; classic .NET
-        // Framework can't reference netstandard2.1 in the first place) has
-        // shipped this method since .NET Core 3.0. Reflection is the
-        // standard, safe way to call a newer BCL member than the compile-time
-        // target framework declares -- not a fragile guess -- and this falls
-        // back to 0 (memoryPercent becomes 0.0, never a crash) on the
-        // practically-never-expected chance it's missing.
+        // GC.GetGCMemoryInfo() isn't declared in netstandard2.0's reference
+        // assembly at all -- it was added in .NET Core 3.0, and netstandard2.0
+        // is also what classic .NET Framework 4.6.1+ can reference, where the
+        // method genuinely does not exist at runtime (not just an API-surface
+        // gap, unlike the netstandard2.1 case). Reflection is the standard,
+        // safe way to call it when the host DOES have it (.NET Core 3.0+/.NET
+        // 5+), and this falls back to 0 (memoryPercent becomes 0.0, never a
+        // crash) on any host where it's genuinely missing, including real
+        // .NET Framework hosts.
         private static long GetTotalAvailableMemoryBytes()
         {
             try

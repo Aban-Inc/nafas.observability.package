@@ -2,7 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/Nafas.Observability?logo=nuget)](https://www.nuget.org/packages/Nafas.Observability)
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-blue)](Nafas.Observability/LICENSE.md)
-[![.NET Standard 2.1](https://img.shields.io/badge/.NET-netstandard2.1-512BD4?logo=dotnet)](Nafas.Observability/Nafas.Observability.csproj)
+[![.NET Standard 2.0](https://img.shields.io/badge/.NET-netstandard2.0-512BD4?logo=dotnet)](Nafas.Observability/Nafas.Observability.csproj)
 
 An embedded, self-hosted observability dashboard for ASP.NET Core: logs,
 metrics, traces, and alerting, captured automatically from what your app
@@ -168,13 +168,16 @@ shared across instances — use SQL Server for that case.
 
 ## Requirements
 
-- The package targets `netstandard2.1`, so the **consuming app must run
-  on .NET Core 3.0+ or .NET 5+** (classic .NET Framework does not
-  implement `netstandard2.1` and is not supported as a host, even though
-  `ConnectionStringName` can read a connection string from a classic
-  `web.config` for apps bridging from one).
+- The package targets `netstandard2.0` for the broadest possible reach on
+  the consuming app's side: **.NET Core 2.0+, .NET 5+, or classic .NET
+  Framework 4.6.1+** can all reference it (`ConnectionStringName`'s
+  classic `web.config` support exists for exactly that last case).
 - ASP.NET Core only — `UseNafasDashboard` requires `IApplicationBuilder`.
 - SQLite (zero setup) or SQL Server 2016+ for storage.
+- One resource metric degrades gracefully on classic .NET Framework:
+  `GC.GetGCMemoryInfo()` doesn't exist there, so `memoryUsage` reports 0
+  on that host instead of a real percentage — everything else (logs,
+  traces, CPU usage, alerting) is unaffected.
 
 ## How it's built internally
 

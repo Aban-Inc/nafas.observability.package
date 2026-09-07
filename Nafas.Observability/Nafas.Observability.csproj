@@ -1,10 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <!-- netstandard2.1's default LangVersion (8.0) predates 'or'/'and'
+    <!-- netstandard2.0, not netstandard2.1, for the broadest possible
+         compatibility on the *consuming app*'s side: netstandard2.1 can only
+         be referenced by .NET Core 3.0+/.NET 5+, while netstandard2.0 can
+         also be referenced by classic .NET Framework 4.6.1+, older Xamarin,
+         UWP, and Unity, on top of everything netstandard2.1 already covers.
+         See NafasResourceMetricsHostedService.cs's own comment on the one
+         place this matters at runtime (GC.GetGCMemoryInfo, gracefully
+         degrades to 0 where it's genuinely missing, e.g. real .NET
+         Framework). -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- netstandard2.0's default LangVersion (7.3) predates 'or'/'and'
          pattern combinators used in the query stores; bumping this is
-         compile-time only and doesn't change the netstandard2.1 binary
+         compile-time only and doesn't change the netstandard2.0 binary
          compatibility target. -->
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>

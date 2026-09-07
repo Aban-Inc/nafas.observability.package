@@ -60,7 +60,7 @@ namespace Nafas.Observability
         /// </summary>
         public static async Task<bool> TryHandleAsync(HttpContext context)
         {
-            var requestSegments = context.Request.Path.Value!.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var requestSegments = context.Request.Path.Value!.Trim('/').Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var route in Routes)
             {
@@ -174,7 +174,7 @@ namespace Nafas.Observability
             return routes;
         }
 
-        private static string[] Split(string pattern) => pattern.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        private static string[] Split(string pattern) => pattern.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
         // ---- handler factories ----
 

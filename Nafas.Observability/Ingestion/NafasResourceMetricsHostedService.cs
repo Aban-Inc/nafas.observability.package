@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -110,10 +111,33 @@ namespace Nafas.Observability.Ingestion
         // method genuinely does not exist at runtime (not just an API-surface
         // gap, unlike the netstandard2.1 case). Reflection is the standard,
         // safe way to call it when the host DOES have it (.NET Core 3.0+/.NET
-        // 5+), and this falls back to 0 (memoryPercent becomes 0.0, never a
-        // crash) on any host where it's genuinely missing, including real
-        // .NET Framework hosts.
+        // 5+), and this falls back to the Windows API path below (or 0, if
+        // even that doesn't apply) on any host where it's genuinely missing.
         private static long GetTotalAvailableMemoryBytes()
+        {
+            var viaGc = GetTotalAvailableMemoryBytesViaGc();
+            if (viaGc > 0)
+            {
+                return viaGc;
+            }
+
+            // Only reached on a host with no GC.GetGCMemoryInfo() -- classic
+            // .NET Framework, or .NET Core 2.x. Classic .NET Framework only
+            // ever runs on Windows, so GlobalMemoryStatusEx (the Win32 API
+            // every .NET Framework app has always used for this, since no
+            // managed equivalent exists there) covers exactly that gap.
+            // Gated on IsOSPlatform(Windows) rather than just try/catching
+            // the P/Invoke itself: this assembly is one single netstandard2.0
+            // DLL shared by every consumer, including Linux/macOS and Docker
+            // Linux-container hosts on .NET Core -- this check makes sure
+            // GlobalMemoryStatusEx (a kernel32.dll export) is never even
+            // attempted there, not just that a failure is caught.
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? GetTotalPhysicalMemoryBytesViaWindowsApi()
+                : 0L;
+        }
+
+        private static long GetTotalAvailableMemoryBytesViaGc()
         {
             try
             {
@@ -127,5 +151,48 @@ namespace Nafas.Observability.Ingestion
                 return 0L;
             }
         }
+
+        // Whole-machine physical memory, not container/Job-Object-aware the
+        // way GC.GetGCMemoryInfo() above is -- a process running under a Job
+        // Object memory cap will see more "available" memory here than it can
+        // actually use, so memory_usage under-reports in that specific case.
+        // Still a real, useful number instead of the 0 this metric would
+        // otherwise report on every classic .NET Framework host, and a
+        // Job-Object-capped classic .NET Framework process is a narrow case
+        // even within classic .NET Framework hosting as a whole.
+        private static long GetTotalPhysicalMemoryBytesViaWindowsApi()
+        {
+            try
+            {
+                var status = new MEMORYSTATUSEX { dwLength = (uint)Marshal.SizeOf<MEMORYSTATUSEX>() };
+                return GlobalMemoryStatusEx(ref status) ? (long)status.ullTotalPhys : 0L;
+            }
+            catch
+            {
+                // Defensive: IsOSPlatform(Windows) above should already rule
+                // out DllNotFoundException, but a locked-down environment
+                // (e.g. missing kernel32 export, unlikely as that is) still
+                // shouldn't take the sampler down.
+                return 0L;
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MEMORYSTATUSEX
+        {
+            public uint dwLength;
+            public uint dwMemoryLoad;
+            public ulong ullTotalPhys;
+            public ulong ullAvailPhys;
+            public ulong ullTotalPageFile;
+            public ulong ullAvailPageFile;
+            public ulong ullTotalVirtual;
+            public ulong ullAvailVirtual;
+            public ulong ullAvailExtendedVirtual;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
     }
 }

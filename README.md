@@ -92,7 +92,7 @@ any `[Trace]`-style attributes to your code:
 | Logs | An `ILoggerProvider` registered alongside your existing providers | Every `ILogger.Log*` call in the app, correlated to the active `Activity` when there is one |
 | Traces | A process-wide `System.Diagnostics.ActivityListener` | Listens to every `ActivitySource`, including ASP.NET Core's own built-in per-request activity — no manual span creation needed for basic request tracing |
 | Metrics | A process-wide `System.Diagnostics.Metrics.MeterListener` | Listens to every `Meter`, including ASP.NET Core 8+'s built-in `http.server.request.duration`, from which request-rate is also derived |
-| Resource usage | A native sampler (`Process` + `GC.GetGCMemoryInfo()`) | CPU and memory usage of the running process, sampled on an interval |
+| Resource usage | A native sampler (`Process` + `GC.GetGCMemoryInfo()`, with a Windows-API fallback — see [Requirements](#requirements)) | CPU and memory usage of the running process, sampled on an interval |
 
 All of it is written through a bounded, non-blocking queue
 (`System.Threading.Channels`) so a burst of telemetry never applies
@@ -174,10 +174,22 @@ shared across instances — use SQL Server for that case.
   classic `web.config` support exists for exactly that last case).
 - ASP.NET Core only — `UseNafasDashboard` requires `IApplicationBuilder`.
 - SQLite (zero setup) or SQL Server 2016+ for storage.
-- One resource metric degrades gracefully on classic .NET Framework:
-  `GC.GetGCMemoryInfo()` doesn't exist there, so `memoryUsage` reports 0
-  on that host instead of a real percentage — everything else (logs,
-  traces, CPU usage, alerting) is unaffected.
+- `memoryUsage` (one of several resource metrics — logs, traces, CPU
+  usage, and alerting are all unaffected either way) is read differently
+  depending on the host, in this order:
+  1. **.NET Core 3.0+ / .NET 5+** (the common case) — `GC.GetGCMemoryInfo()`,
+     which is container-aware: it reflects a cgroup or Docker memory limit
+     when one is set, not just physical host RAM.
+  2. **Classic .NET Framework 4.6.1+, or .NET Core 2.x, on Windows** —
+     falls back to the Win32 `GlobalMemoryStatusEx` API (the same one
+     .NET Framework apps have always used for this, no managed equivalent
+     exists there). This reports whole-machine physical memory, **not**
+     container/Job-Object-aware, so a process capped by a Job Object
+     memory limit will under-report here.
+  3. **Any non-Windows host without `GC.GetGCMemoryInfo()`** (practically:
+     .NET Core 2.x on Linux/macOS) — reports `0`. This path is explicitly
+     gated to Windows only, so a Linux container never attempts a
+     `kernel32.dll` call in the first place.
 
 ## How it's built internally
 

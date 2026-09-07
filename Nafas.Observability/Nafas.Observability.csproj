@@ -21,10 +21,15 @@
 
   <!--
     NuGet package metadata.
-      - Version: 0.1.0, not 1.0.0, since real ingestion/alerting only just
+      - Version: 0.1.1, not 1.0.0, since real ingestion/alerting only just
         landed and nothing has run this in a real deployment yet; 1.0.0
         would overclaim stability. Bump by hand for each release (no
-        SourceLink/CI versioning set up yet).
+        SourceLink/CI versioning set up yet). 0.1.1 specifically over
+        0.1.0: NuGet packages are immutable once published, and 0.1.0 was
+        already uploaded before NafasServerOptions.Authorize existed, so
+        anyone who installs a version before this one gets a dashboard
+        open to any request that reaches it, not just local ones. Worth a
+        real version bump, not a silent republish.
       - PackageLicenseFile, not PackageLicenseExpression: FSL-1.1-ALv2 isn't
         a NuGet-recognized SPDX identifier, so the actual file is packed
         alongside the DLL instead (see LICENSE.md's own comment history).
@@ -39,7 +44,7 @@
   -->
   <PropertyGroup>
     <PackageId>Nafas.Observability</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Aban-Inc</Authors>
     <Company>Aban-Inc</Company>
     <Copyright>Copyright © 2026 گروه تحقیق و توسعه زیرساخت فناوری آبان</Copyright>

@@ -1,10 +1,12 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 namespace Nafas.Observability
@@ -28,6 +30,20 @@ namespace Nafas.Observability
         {
             if (app is null) throw new ArgumentNullException(nameof(app));
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Dashboard path must not be empty.", nameof(path));
+
+            // NafasServerOptions is registered as a singleton by AddNafasServer
+            // (see NafasServiceCollectionExtensions.cs) -- resolved here
+            // (app.ApplicationServices is the real, fully-built provider by
+            // the time UseNafasDashboard runs) rather than adding a second
+            // parameter to this method, so NafasServerOptions.Authorize stays
+            // configured in the one place every other option already is.
+            // Failing loudly here (rather than silently defaulting to "open")
+            // is deliberate: a missing AddNafasServer() call is a setup bug
+            // that should surface immediately, not as a dashboard that quietly
+            // never authorizes anyone.
+            var options = app.ApplicationServices.GetService<NafasServerOptions>()
+                ?? throw new InvalidOperationException("UseNafasDashboard requires AddNafasServer() to be called first, e.g. builder.Services.AddNafasServer().");
+            var authorize = options.Authorize ?? IsLocalRequest;
 
             var normalizedPath = "/" + path.Trim('/');
             var assembly = typeof(NafasDashboardExtensions).GetTypeInfo().Assembly;
@@ -53,6 +69,23 @@ namespace Nafas.Observability
 
             app.Map(normalizedPath, dashboardApp =>
             {
+                // The authorization gate -- first, before static files, the
+                // api/* router, and the SPA fallback below, so a rejected
+                // request never reaches any of them (including the SSE
+                // streams, which live under api/* too). See
+                // NafasServerOptions.Authorize's own comment for the default.
+                dashboardApp.Use(async (context, next) =>
+                {
+                    if (!authorize(context))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await context.Response.WriteAsync("Access to the Nafas dashboard was denied. By default it's only reachable from the local machine -- set NafasServerOptions.Authorize to allow more.");
+                        return;
+                    }
+
+                    await next().ConfigureAwait(false);
+                });
+
                 // Serves every real embedded file (JS/CSS/SVG/font chunks)
                 // at its own path under the mount point -- e.g.
                 // {normalizedPath}/assets/index-XXXX.js.
@@ -129,6 +162,28 @@ namespace Nafas.Observability
             });
 
             return app;
+        }
+
+        // The default NafasServerOptions.Authorize -- deliberately the same
+        // check Hangfire's own LocalRequestsOnlyAuthorizationFilter makes,
+        // since this package's whole "no auth configured yet" default is
+        // meant to match that same safe-by-default posture.
+        private static bool IsLocalRequest(HttpContext context)
+        {
+            var connection = context.Connection;
+
+            // No RemoteIpAddress at all -- some in-memory test hosts (e.g.
+            // TestServer/WebApplicationFactory) never populate it. Nothing to
+            // reject against, so err on the side of "local", same as
+            // Hangfire's own filter does for this case.
+            if (connection.RemoteIpAddress is null) return true;
+
+            if (IPAddress.IsLoopback(connection.RemoteIpAddress)) return true;
+
+            // Not loopback, but still arrived on the same machine (bound to a
+            // non-loopback address, or behind a proxy that preserves the
+            // original local address) -- Remote and Local match exactly.
+            return connection.LocalIpAddress != null && connection.RemoteIpAddress.Equals(connection.LocalIpAddress);
         }
     }
 }

@@ -23,6 +23,7 @@ separate process to run or deploy. One NuGet package, two lines in
 - [Quick start](#quick-start)
 - [What gets captured, and how](#what-gets-captured-and-how)
 - [Configuration](#configuration)
+- [Security](#security)
 - [Alerting](#alerting)
 - [Multi-instance deployments](#multi-instance-deployments)
 - [Requirements](#requirements)
@@ -116,9 +117,37 @@ All of these are set inside `AddNafasServer(options => { ... })`.
 | `RetentionDays` | `30` | How long logs/metrics/traces are kept before a background sweep deletes them |
 | `AlertWebhookUrl` | — | Where alert incidents are POSTed as JSON. Alert rules and incidents still work without it; nothing gets delivered anywhere until it's set |
 | `ServiceName` | `IHostEnvironment.ApplicationName` | Overrides the service name stamped on everything ingested |
+| `Authorize` | `null` (local requests only) | Gates every request to the dashboard — see [Security](#security) |
 
 `UseNafasDashboard(path)` takes the mount path for the dashboard UI itself
 (default `"/nafas"`) — pick any path your app isn't already using.
+
+## Security
+
+The dashboard shows logs, traces, and metrics — which routinely carry
+sensitive data (request bodies, stack traces, connection strings inside
+exception messages). By default, `UseNafasDashboard` only serves requests
+that come from the local machine — the same default posture as
+[Hangfire's own dashboard](https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization).
+Every other request gets a `403`.
+
+```csharp
+builder.Services.AddNafasServer(options =>
+{
+    // Runs after your own auth middleware, if you have one registered
+    // earlier in the pipeline -- httpContext.User is already populated.
+    options.Authorize = httpContext => httpContext.User.IsInRole("Admin");
+
+    // Or, deliberately, open to everyone (not recommended without your
+    // own auth in front of it):
+    // options.Authorize = _ => true;
+});
+```
+
+If you don't set `Authorize` and the dashboard doesn't load from where you
+expect (a phone on the same network, a teammate's machine, behind a
+reverse proxy), this is why — set it explicitly once you know who should
+be allowed in.
 
 ## Alerting
 

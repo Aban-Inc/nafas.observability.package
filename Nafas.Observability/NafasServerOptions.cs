@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace Nafas.Observability
 {
@@ -83,5 +84,32 @@ namespace Nafas.Observability
         /// dashboard.
         /// </summary>
         public string? ServiceName { get; set; }
+
+        /// <summary>
+        /// Gates every request to the dashboard mounted by
+        /// <c>app.UseNafasDashboard(path)</c> -- return <c>true</c> to allow
+        /// the request, <c>false</c> to reject it with 403. Runs after the
+        /// consuming app's own auth middleware (if any), so
+        /// <c>httpContext.User</c> is already populated when one is
+        /// registered earlier in the pipeline.
+        ///
+        /// Defaults to <c>null</c>, which means "local requests only" -- the
+        /// same default posture as Hangfire's own
+        /// <c>LocalRequestsOnlyAuthorizationFilter</c>. Logs, traces, and
+        /// metrics routinely carry sensitive data (request bodies, stack
+        /// traces, connection strings in exception messages), so an
+        /// unauthenticated dashboard reachable from outside the host is a
+        /// real information-disclosure risk, not a hypothetical one -- this
+        /// package would rather a developer notice their dashboard doesn't
+        /// load from their phone and go looking for this option, than ship
+        /// wide open by default the way an early build of it did.
+        ///
+        /// Set this explicitly to open the dashboard up behind your own
+        /// authorization, e.g. <c>options.Authorize = ctx =&gt;
+        /// ctx.User.IsInRole("Admin");</c> -- or to <c>_ =&gt; true</c> to
+        /// deliberately allow everyone (not recommended without your own
+        /// auth in front of it).
+        /// </summary>
+        public Func<HttpContext, bool>? Authorize { get; set; }
     }
 }

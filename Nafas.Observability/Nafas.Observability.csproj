@@ -19,11 +19,9 @@
       - PackageLicenseFile, not PackageLicenseExpression: FSL-1.1-ALv2 isn't
         a NuGet-recognized SPDX identifier, so the actual file is packed
         alongside the DLL instead (see LICENSE.md's own comment history).
-      - RepositoryUrl points at the dedicated repo this package is moving to
-        (Aban-Inc/nafas.observability), not the monorepo it's currently
-        developed in, since that's where it'll actually live once
-        published, per the plan to make that repo public once this work is
-        done.
+      - RepositoryUrl points at this package's own dedicated repo
+        (Aban-Inc/nafas.observability.package), not the original monorepo
+        it was developed in, since that's where it actually lives now.
       - PackageIcon (icon.png): a 512x512 PNG regenerated from
         AppSidebar.vue's own former logo mark (teal gradient rounded
         square, same wave path, same proportions), kept as the package's
@@ -36,10 +34,10 @@
     <Authors>Aban-Inc</Authors>
     <Company>Aban-Inc</Company>
     <Copyright>Copyright © 2026 گروه تحقیق و توسعه زیرساخت فناوری آبان</Copyright>
-    <Description>Self-hosted, embeddable observability dashboard for ASP.NET Core -- logs, metrics, traces, and alerts, with real ingestion and zero external dependencies. Distributed the way Hangfire is: one NuGet package, two calls, nothing else to deploy.</Description>
+    <Description>Self-hosted, embeddable observability dashboard for ASP.NET Core -- logs, metrics, traces, and alerts, with real ingestion and zero external dependencies. One NuGet package, two calls in Program.cs, nothing else to deploy.</Description>
     <PackageTags>observability;logging;metrics;tracing;monitoring;dashboard;aspnetcore;opentelemetry;alerting;apm</PackageTags>
-    <PackageProjectUrl>https://github.com/Aban-Inc/nafas.observability</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Aban-Inc/nafas.observability.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Aban-Inc/nafas.observability.package</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Aban-Inc/nafas.observability.package.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>

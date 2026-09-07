@@ -17,7 +17,7 @@ name: Publish to NuGet
 # be registered on nuget.org (sign in -> username -> Trusted Publishing ->
 # add policy) pointing at:
 #   Repository Owner: Aban-Inc
-#   Repository:       nafas.observability
+#   Repository:       nafas.observability.package
 #   Workflow File:    publish.yml   (filename only, not the .github/workflows/ path)
 # and a NUGET_USER repository secret holding the nuget.org *username*
 # (profile name, not email) that owns that policy.

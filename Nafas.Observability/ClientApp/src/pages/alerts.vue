@@ -241,10 +241,15 @@ async function confirmDelete(id: number) {
               <InputNumber v-model="createForm.thresholdValue" :min="0" class="field-input" />
             </div>
           </template>
-          <div class="field">
-            <label class="field-label">{{ t('alerts.form.window') }}</label>
-            <InputNumber v-model="createForm.windowMinutes" :min="1" class="field-input" />
-          </div>
+        </div>
+        <!-- Kept out of .rule-form-grid on its own row, not as the grid's
+             trailing item -- the grid's auto-fill columns leave a lone last
+             item stranded with a large empty gap beside it at almost every
+             viewport width (3 or 5 fields never divide evenly). A fixed,
+             compact field here is deterministic instead. -->
+        <div class="field field-compact">
+          <label class="field-label">{{ t('alerts.form.window') }}</label>
+          <InputNumber v-model="createForm.windowMinutes" :min="1" class="field-input" />
         </div>
         <span v-if="createError" class="field-error">{{ createError }}</span>
         <div class="rule-form-actions">
@@ -299,10 +304,10 @@ async function confirmDelete(id: number) {
                     <InputNumber v-model="editForm.thresholdValue" :min="0" class="field-input" />
                   </div>
                 </template>
-                <div class="field">
-                  <label class="field-label">{{ t('alerts.form.window') }}</label>
-                  <InputNumber v-model="editForm.windowMinutes" :min="1" class="field-input" />
-                </div>
+              </div>
+              <div class="field field-compact">
+                <label class="field-label">{{ t('alerts.form.window') }}</label>
+                <InputNumber v-model="editForm.windowMinutes" :min="1" class="field-input" />
               </div>
               <label class="enabled-toggle">
                 <input type="checkbox" v-model="editForm.enabled" />
@@ -380,6 +385,10 @@ async function confirmDelete(id: number) {
 
 .rule-form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px 14px; }
 .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+/* Sits outside .rule-form-grid, always on its own row -- see the comment
+   where it's used in the template. Capped width so a lone field doesn't
+   stretch edge to edge either. */
+.field-compact { max-width: 200px; }
 .field-label { font-size: 11.5px; font-weight: 500; color: var(--text-color-secondary, #6B7280); }
 .field-input { width: 100%; }
 .field-error { font-size: 12px; color: #E5484D; }

@@ -1,0 +1,11 @@
+﻿<Application x:Class="Nafas.Observability.Server.Sample.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Nafas.Observability.Server.Sample">
+    <!-- No StartupUri: MainWindow is resolved through the Generic Host's DI
+         container instead (see App.xaml.cs), since it takes NafasHttpServer
+         as a constructor dependency. -->
+    <Application.Resources>
+
+    </Application.Resources>
+</Application>

@@ -1,0 +1,53 @@
+<Window x:Class="Nafas.Observability.Server.Sample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Nafas.Observability.Server.Sample"
+        mc:Ignorable="d"
+        Title="Nafas.Observability.Server sample" Height="360" Width="480">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,16"
+                   Text="This is a plain WPF app -- no ASP.NET Core pipeline, so there's no app.UseNafasDashboard(...) to call. Nafas.Observability.Server runs its own raw HTTP/1.1 listener instead (no Kestrel, no OWIN)." />
+
+        <CheckBox Grid.Row="1" x:Name="EnabledCheckBox" Content="Enable dashboard server" Margin="0,0,0,12"
+                  Checked="OnEnabledChanged" Unchecked="OnEnabledChanged" />
+
+        <Grid Grid.Row="2" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Port:" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox Grid.Column="1" x:Name="PortTextBox" Text="5099" VerticalAlignment="Center" />
+        </Grid>
+
+        <StackPanel Grid.Row="3" Margin="0,0,0,16">
+            <TextBlock Text="Access:" Margin="0,0,0,4" />
+            <RadioButton x:Name="LocalhostOnlyRadio" GroupName="AccessMode" Content="Localhost only (this machine)" IsChecked="True" Margin="0,0,0,4" />
+            <RadioButton x:Name="LanRadio" GroupName="AccessMode" Content="Allow LAN (other devices on the network, via this machine's IP)" />
+            <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,4,0,0"
+                       Text="LAN only opens the port -- requests still need NafasServerOptions.Authorize to be set (it defaults to local-only), otherwise they still get a 403. See App.xaml.cs's AddNafasServer() call." />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,16">
+            <Button x:Name="ApplyButton" Content="Apply" Padding="12,4" Margin="0,0,8,0" Click="OnApplyClicked" />
+            <Button x:Name="OpenButton" Content="Open dashboard" Padding="12,4" IsEnabled="False" Click="OnOpenClicked" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="5" x:Name="StatusText" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Stopped." />
+    </Grid>
+</Window>

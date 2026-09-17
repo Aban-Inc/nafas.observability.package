@@ -29,19 +29,50 @@ namespace Nafas.Observability
         public static IApplicationBuilder UseNafasDashboard(this IApplicationBuilder app, string path = DefaultPath)
         {
             if (app is null) throw new ArgumentNullException(nameof(app));
+
+            return UseNafasDashboard(app, app.ApplicationServices, path);
+        }
+
+        /// <summary>
+        /// Same as <see cref="UseNafasDashboard(IApplicationBuilder, string)"/>,
+        /// except every Nafas-specific dependency (<see cref="NafasServerOptions"/>,
+        /// <c>INafasQueryStore</c>, the dashboard's cache, <c>NafasLiveFeed</c>)
+        /// is resolved from <paramref name="nafasServices"/> instead of
+        /// <c>app.ApplicationServices</c>.
+        ///
+        /// Exists for <c>Nafas.Observability.SelfHost</c>'s standalone Kestrel
+        /// listener: that package builds its OWN, otherwise-empty
+        /// <see cref="IApplicationBuilder"/> (a second Kestrel instance on its
+        /// own port, next to whatever the host app is doing -- a plain
+        /// console/WinForms/WPF app usually has no ASP.NET Core pipeline of
+        /// its own at all), so it has nothing sensible to put in
+        /// <c>app.ApplicationServices</c>. It passes the host app's own
+        /// provider (the one <c>AddNafasServer()</c> populated) here instead,
+        /// so the dashboard reads the exact same running app's real data
+        /// through a second, independent HTTP listener -- not a second copy
+        /// of it. <c>context.RequestServices</c> is set to
+        /// <paramref name="nafasServices"/> for the same reason: everything
+        /// downstream (NafasDashboardEndpoints.cs included) resolves its
+        /// dependencies off <c>context.RequestServices</c>, unaware of which
+        /// of the two overloads got it there.
+        /// </summary>
+        public static IApplicationBuilder UseNafasDashboard(this IApplicationBuilder app, IServiceProvider nafasServices, string path = DefaultPath)
+        {
+            if (app is null) throw new ArgumentNullException(nameof(app));
+            if (nafasServices is null) throw new ArgumentNullException(nameof(nafasServices));
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Dashboard path must not be empty.", nameof(path));
 
             // NafasServerOptions is registered as a singleton by AddNafasServer
-            // (see NafasServiceCollectionExtensions.cs) -- resolved here
-            // (app.ApplicationServices is the real, fully-built provider by
-            // the time UseNafasDashboard runs) rather than adding a second
+            // (see NafasServiceCollectionExtensions.cs) -- resolved from
+            // nafasServices (normally app.ApplicationServices, see the
+            // single-provider overload above) rather than adding a second
             // parameter to this method, so NafasServerOptions.Authorize stays
             // configured in the one place every other option already is.
             // Failing loudly here (rather than silently defaulting to "open")
             // is deliberate: a missing AddNafasServer() call is a setup bug
             // that should surface immediately, not as a dashboard that quietly
             // never authorizes anyone.
-            var options = app.ApplicationServices.GetService<NafasServerOptions>()
+            var options = nafasServices.GetService<NafasServerOptions>()
                 ?? throw new InvalidOperationException("UseNafasDashboard requires AddNafasServer() to be called first, e.g. builder.Services.AddNafasServer().");
             var authorize = options.Authorize ?? IsLocalRequest;
 
@@ -74,8 +105,20 @@ namespace Nafas.Observability
                 // request never reaches any of them (including the SSE
                 // streams, which live under api/* too). See
                 // NafasServerOptions.Authorize's own comment for the default.
+                //
+                // Also where context.RequestServices gets pointed at
+                // nafasServices -- a no-op for the single-provider overload
+                // (nafasServices already *is* app.ApplicationServices there),
+                // but load-bearing for the IServiceProvider overload: without
+                // this, NafasDashboardEndpoints.cs's own
+                // context.RequestServices.GetRequiredService<...>() calls
+                // would resolve against this Map()'d IApplicationBuilder's
+                // own (otherwise empty) services instead of the host app's
+                // real ones.
                 dashboardApp.Use(async (context, next) =>
                 {
+                    context.RequestServices = nafasServices;
+
                     if (!authorize(context))
                     {
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;

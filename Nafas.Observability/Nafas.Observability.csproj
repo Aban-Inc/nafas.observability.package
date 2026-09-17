@@ -21,15 +21,19 @@
 
   <!--
     NuGet package metadata.
-      - Version: 0.1.1, not 1.0.0, since real ingestion/alerting only just
+      - Version: 0.1.2, not 1.0.0, since real ingestion/alerting only just
         landed and nothing has run this in a real deployment yet; 1.0.0
         would overclaim stability. Bump by hand for each release (no
-        SourceLink/CI versioning set up yet). 0.1.1 specifically over
-        0.1.0: NuGet packages are immutable once published, and 0.1.0 was
-        already uploaded before NafasServerOptions.Authorize existed, so
-        anyone who installs a version before this one gets a dashboard
-        open to any request that reaches it, not just local ones. Worth a
-        real version bump, not a silent republish.
+        SourceLink/CI versioning set up yet). History:
+          - 0.1.1 over 0.1.0: NuGet packages are immutable once published,
+            and 0.1.0 was already uploaded before NafasServerOptions.Authorize
+            existed, so anyone who installs a version before this one gets a
+            dashboard open to any request that reaches it, not just local
+            ones. Worth a real version bump, not a silent republish.
+          - 0.1.2 over 0.1.1: adds the UseNafasDashboard(IApplicationBuilder,
+            IServiceProvider, string) overload Nafas.Observability.Server
+            needs (see that package's own comments); backward compatible,
+            the existing UseNafasDashboard(path) overload is unchanged.
       - PackageLicenseFile, not PackageLicenseExpression: FSL-1.1-ALv2 isn't
         a NuGet-recognized SPDX identifier, so the actual file is packed
         alongside the DLL instead (see LICENSE.md's own comment history).
@@ -44,7 +48,7 @@
   -->
   <PropertyGroup>
     <PackageId>Nafas.Observability</PackageId>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Aban-Inc</Authors>
     <Company>Aban-Inc</Company>
     <Copyright>Copyright © 2026 گروه تحقیق و توسعه زیرساخت فناوری آبان</Copyright>
@@ -56,6 +60,7 @@
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageReleaseNotes>0.1.2: Added a new UseNafasDashboard(IApplicationBuilder, IServiceProvider, string) overload so a second, independent HTTP pipeline (see the new Nafas.Observability.Server package) can serve the dashboard against this app's real data -- the existing UseNafasDashboard(path) call is unaffected. Fixed an Alert Rules dashboard form layout bug (the "window" field could be left stranded on its own row with a large empty gap next to it).</PackageReleaseNotes>
     <Title>Nafas Observability Package</Title>
   </PropertyGroup>
   <ItemGroup>

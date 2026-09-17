@@ -29,7 +29,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Package version to pack (blank = use Nafas.Observability.csproj's own <Version>)"
+        description: "Version to pack both packages as (blank = each project's own csproj <Version>)"
         required: false
         type: string
       publish:
@@ -85,8 +85,22 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved package version: '${VERSION:-<csproj default>}'"
 
-      - name: dotnet pack
+      # Both packages, same version -- see this workflow's own file-level
+      # comment history: one tag is one release of the whole repo, not a
+      # per-package release train. Nafas.Observability.Server references
+      # Nafas.Observability by ProjectReference, so `dotnet pack` turns that
+      # into a normal NuGet dependency on this exact version automatically.
+      - name: dotnet pack (Nafas.Observability)
         working-directory: Nafas.Observability
+        run: |
+          if [ -n "${{ steps.version.outputs.version }}" ]; then
+            dotnet pack -c Release -o ../artifacts -p:Version=${{ steps.version.outputs.version }}
+          else
+            dotnet pack -c Release -o ../artifacts
+          fi
+
+      - name: dotnet pack (Nafas.Observability.Server)
+        working-directory: Nafas.Observability.Server
         run: |
           if [ -n "${{ steps.version.outputs.version }}" ]; then
             dotnet pack -c Release -o ../artifacts -p:Version=${{ steps.version.outputs.version }}

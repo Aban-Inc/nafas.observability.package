@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <!--
+    A plain WinForms/WPF app has no ASP.NET Core pipeline of its own; this is
+    exactly the scenario Nafas.Observability.Server exists for (see that
+    project's own csproj comment on why it's a raw TcpListener-based HTTP/1.1
+    server instead of Kestrel or OWIN). This sample is deliberately a normal
+    WPF app plus the .NET Generic Host (Microsoft.Extensions.Hosting) for
+    DI/lifetime management; nothing here is WPF-specific beyond
+    App.xaml.cs/MainWindow.xaml.cs, and the same AddNafasServer/
+    AddNafasHttpServer calls work identically from a WinForms Program.cs or a
+    plain console app.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\Nafas.Observability\Nafas.Observability.csproj" />
+    <ProjectReference Include="..\Nafas.Observability.Server\Nafas.Observability.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

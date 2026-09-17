@@ -1,6 +1,7 @@
 # Nafas.Observability
 
-[![NuGet](https://img.shields.io/nuget/v/Nafas.Observability?logo=nuget)](https://www.nuget.org/packages/Nafas.Observability)
+[![NuGet](https://img.shields.io/nuget/v/Nafas.Observability?logo=nuget&label=Nafas.Observability)](https://www.nuget.org/packages/Nafas.Observability)
+[![NuGet](https://img.shields.io/nuget/v/Nafas.Observability.Server?logo=nuget&label=Nafas.Observability.Server)](https://www.nuget.org/packages/Nafas.Observability.Server)
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-blue)](Nafas.Observability/LICENSE.md)
 [![.NET Standard 2.0](https://img.shields.io/badge/.NET-netstandard2.0-512BD4?logo=dotnet)](Nafas.Observability/Nafas.Observability.csproj)
 
@@ -24,6 +25,7 @@ separate process to run or deploy. One NuGet package, two lines in
 - [What gets captured, and how](#what-gets-captured-and-how)
 - [Configuration](#configuration)
 - [Security](#security)
+- [Desktop and other non-ASP.NET Core apps](#desktop-and-other-non-aspnet-core-apps)
 - [Alerting](#alerting)
 - [Multi-instance deployments](#multi-instance-deployments)
 - [Requirements](#requirements)
@@ -149,6 +151,65 @@ expect (a phone on the same network, a teammate's machine, behind a
 reverse proxy), this is why — set it explicitly once you know who should
 be allowed in.
 
+## Desktop and other non-ASP.NET Core apps
+
+`UseNafasDashboard` needs an `IApplicationBuilder` to mount onto — a plain
+WinForms, WPF, or console/worker app has no ASP.NET Core pipeline of its
+own to provide one. `Nafas.Observability.Server` is a separate, optional
+package for exactly that case: it runs a second, independent HTTP listener
+(on its own port) that serves the same dashboard against the same running
+app's real data — no Kestrel, no OWIN, just a minimal HTTP/1.1 server
+directly on `TcpListener` (see
+[`Nafas.Observability.Server/Nafas.Observability.Server.csproj`](Nafas.Observability.Server/Nafas.Observability.Server.csproj)'s
+own comment for why: the last version of Kestrel ever published as a plain
+NuGet package is 2.3.13 from 2019, with no HTTP/2 and no security patches
+since, and `System.Net.HttpListener` — the BCL's own listener — turned out
+not to be usable for the LAN case either: on Windows it's backed by
+HTTP.sys, which refuses to bind any prefix other than "localhost" unless
+the process runs elevated or a URL ACL was reserved beforehand, verified
+empirically). Being plain `netstandard2.0` like the core package itself,
+this also works from classic .NET Framework 4.6.1+ apps, not just modern
+.NET.
+
+```bash
+dotnet add package Nafas.Observability.Server
+```
+
+```csharp
+services.AddNafasServer();               // same as always -- storage + ingestion
+services.AddNafasHttpServer(o =>
+{
+    o.Enabled = true;                    // opt-in; does nothing while false
+    o.Port = 5099;
+    o.AccessMode = NafasHttpServerAccessMode.LocalhostOnly; // or .Lan
+});
+```
+
+then open `http://localhost:5099/nafas`. `NafasHttpServerOptions.Enabled` is
+only read once at startup — to start/stop/reconfigure it later (e.g. a
+settings screen's "enable dashboard" checkbox), resolve `NafasHttpServer`
+from DI and call its `StartAsync`/`StopAsync` directly; see
+[`Nafas.Observability.Server.Sample/`](Nafas.Observability.Server.Sample)
+for a worked WPF example.
+
+`AccessMode` only controls which network interface is bound —
+`LocalhostOnly` (the default) binds loopback only, `Lan` binds every
+interface so other devices on the network can reach the port via this
+machine's own IP, with no administrator rights required either way (unlike
+`System.Net.HttpListener`, verified empirically on both). It does not by
+itself relax `NafasServerOptions.Authorize` (still local-requests-only by
+default, see [Security](#security)): set `Authorize` explicitly too if
+`Lan` should actually let those requests through, otherwise they still get
+a `403`.
+
+One request per connection, not HTTP/1.1 keep-alive — this listener is a
+local/LAN admin tool, not a public high-throughput API, so giving up
+connection reuse (an extra TCP handshake per dashboard API call,
+imperceptible on localhost/LAN) removes an entire dimension of correctness
+surface instead. See
+[`Nafas.Observability.Server/Internal/NafasRawHttpConnection.cs`](Nafas.Observability.Server/Internal/NafasRawHttpConnection.cs)'s
+own comment.
+
 ## Alerting
 
 Threshold and absence rules are defined from the dashboard itself (Alerts
@@ -201,7 +262,10 @@ shared across instances — use SQL Server for that case.
   the consuming app's side: **.NET Core 2.0+, .NET 5+, or classic .NET
   Framework 4.6.1+** can all reference it (`ConnectionStringName`'s
   classic `web.config` support exists for exactly that last case).
-- ASP.NET Core only — `UseNafasDashboard` requires `IApplicationBuilder`.
+- ASP.NET Core only for the core package — `UseNafasDashboard` requires
+  `IApplicationBuilder`. For WinForms/WPF/console apps, see
+  [`Nafas.Observability.Server`](#desktop-and-other-non-aspnet-core-apps)
+  instead.
 - SQLite (zero setup) or SQL Server 2016+ for storage.
 - `memoryUsage` (one of several resource metrics — logs, traces, CPU
   usage, and alerting are all unaffected either way) is read differently
@@ -257,6 +321,13 @@ For anyone evaluating this beyond the quick start:
 - [`Nafas.Dashboard.TestHost/`](Nafas.Dashboard.TestHost) — a minimal
   ASP.NET Core app used to manually verify the package end to end; not a
   usage example to copy patterns from.
+- [`Nafas.Observability.Server/`](Nafas.Observability.Server) — the
+  optional standalone HTTP listener package for non-ASP.NET Core apps (no
+  Kestrel, no OWIN); see [Desktop and other non-ASP.NET Core apps](#desktop-and-other-non-aspnet-core-apps).
+- [`Nafas.Observability.Server.Sample/`](Nafas.Observability.Server.Sample) —
+  a WPF app demonstrating it, with a settings-screen-style checkbox to
+  enable/disable the dashboard server, pick its port, and choose
+  localhost-only vs. LAN access at runtime.
 
 ## Local development
 
@@ -293,12 +364,18 @@ source on every publish, so a tagged release never ships a stale UI.
 
 ## Status
 
-Pre-1.0 (see the NuGet badge at the top of this file for the exact
-version) — real ingestion, storage, dashboard, and alert evaluation all
+Pre-1.0 (see the NuGet badges at the top of this file for the exact
+versions) — real ingestion, storage, dashboard, and alert evaluation all
 work and are exercised through `Nafas.Dashboard.TestHost`, but this has
 not yet run in a production deployment. The public API surface
 (`NafasServerOptions`, `UseNafasDashboard`) is expected to stay stable,
 but has not been through a real upgrade cycle yet.
+
+`Nafas.Observability.Server` is newer still (its first release) — exercised
+through the smoke-tested scenarios described in its own comments (static
+files, the JSON API, SSE streaming, restart/stop, the local-only security
+default, and genuine LAN reachability without administrator rights), but,
+like the core package, not yet through a real desktop deployment.
 
 ## License
 

@@ -41,6 +41,12 @@
             had actually finished, logging "no such table: nafas_logs" and
             silently dropping that batch. Worth a real version bump given
             0.1.2 is already published with the bug.
+          - 0.1.4 over 0.1.3: fixes the topbar's language picker and
+            direction toggle (layout.store.ts) acting as two unrelated
+            settings; switching language to Farsi left the layout ltr (or
+            vice versa) until the other control was also clicked by hand.
+            setLanguage/setDirection now keep each other in sync. UI-only,
+            rebuilt ClientApp bundle included; no server-side API changes.
       - PackageLicenseFile, not PackageLicenseExpression: FSL-1.1-ALv2 isn't
         a NuGet-recognized SPDX identifier, so the actual file is packed
         alongside the DLL instead (see LICENSE.md's own comment history).
@@ -55,7 +61,7 @@
   -->
   <PropertyGroup>
     <PackageId>Nafas.Observability</PackageId>
-    <Version>0.1.3</Version>
+    <Version>0.1.4</Version>
     <Authors>Aban-Inc</Authors>
     <Company>Aban-Inc</Company>
     <Copyright>Copyright © 2026 گروه تحقیق و توسعه زیرساخت فناوری آبان</Copyright>
@@ -67,7 +73,7 @@
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageReleaseNotes>0.1.3: Fixed a cold-start race condition present since real ingestion landed: NafasIngestionWriterHostedService could attempt a database write before schema creation had actually finished, logging "SQLite Error 1: no such table: nafas_logs" and silently dropping that batch of logs/metrics/traces. Ingestion hosted-service registration order now genuinely guarantees schema exists first. No API changes.</PackageReleaseNotes>
+    <PackageReleaseNotes>0.1.4: Fixed the dashboard's language picker and RTL/LTR direction toggle being able to disagree with each other -- switching to Farsi now always switches direction to rtl (and English to ltr), and toggling direction now always switches the language to match, instead of requiring both controls to be set by hand. UI-only fix (rebuilt dashboard bundle); no API changes. Previous (0.1.3): fixed a cold-start race condition present since real ingestion landed: NafasIngestionWriterHostedService could attempt a database write before schema creation had actually finished, logging "SQLite Error 1: no such table: nafas_logs" and silently dropping that batch of logs/metrics/traces. Ingestion hosted-service registration order now genuinely guarantees schema exists first.</PackageReleaseNotes>
     <Title>Nafas Observability Package</Title>
   </PropertyGroup>
   <ItemGroup>

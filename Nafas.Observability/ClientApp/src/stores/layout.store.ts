@@ -27,6 +27,18 @@ export const useLayoutStore = defineStore('layout-store', {
         localStorage.setItem('nafas-direction', this.direction);
         document.documentElement.setAttribute('dir', this.direction);
       }
+
+      // Direction and language are two views of the same setting in this
+      // package's UI (no independent "Farsi, but LTR" mode is offered
+      // anywhere) -- switching one must switch the other, or the topbar's
+      // language select and direction toggle silently disagree with each
+      // other until the next full setLanguage/setDirection call. 'auto' has
+      // no natural language to pair with, so it's left alone here.
+      if (direction === 'ltr' && this.language !== 'en') {
+        this.setLanguage('en');
+      } else if (direction === 'rtl' && this.language !== 'fa') {
+        this.setLanguage('fa');
+      }
     },
     toggleDirection(): void {
       this.setDirection(this.direction == 'ltr' ? 'rtl' : 'ltr');
@@ -59,6 +71,19 @@ export const useLayoutStore = defineStore('layout-store', {
       // registered message keys ('fa'|'en'), narrower than Language's full
       // seven-code union.
       i18n.global.locale.value = language as 'fa' | 'en';
+
+      // Same pairing as setDirection's own comment, the other way around --
+      // picking Farsi from the topbar's language select must flip direction
+      // to rtl (and English to ltr), or the page ends up showing Farsi text
+      // in an ltr layout (or vice versa) until the user separately remembers
+      // to click the direction toggle too. Only en/fa drive this since
+      // they're the only languages with a real (and opposite) direction in
+      // this package today -- see SUPPORTED_LANGUAGES in i18n/index.ts.
+      if (language === 'fa' && this.direction !== 'rtl') {
+        this.setDirection('rtl');
+      } else if (language === 'en' && this.direction !== 'ltr') {
+        this.setDirection('ltr');
+      }
     },
     setSettingsHydrated(value: boolean): void {
       this.settingsHydrated = value;

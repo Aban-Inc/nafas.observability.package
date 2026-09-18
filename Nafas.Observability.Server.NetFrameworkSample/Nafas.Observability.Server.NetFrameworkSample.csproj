@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- net48, not net8.0-windows like Nafas.Observability.Server.Sample;
+         this project exists to empirically verify the claim already written
+         into Nafas.Observability.Server.csproj's own comment and README.md's
+         "Desktop and other non-ASP.NET Core apps" section: that being plain
+         netstandard2.0 means this package "works identically on .NET
+         Framework 4.6.1+, not just modern .NET". Before this project, that
+         was true only in the sense that netstandard2.0 is TFM-compatible
+         with net461+; nothing in this solution had ever actually been
+         built and run as a real classic .NET Framework process. net48
+         (not net461) because it's the newest, most commonly deployed
+         classic .NET Framework version and the one most likely to surface
+         a real binding-redirect or runtime gap if one exists. -->
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <!-- Explicit, not AnyCPU; SQLitePCLRaw (which Microsoft.Data.Sqlite
+         depends on) picks which native e_sqlite3.dll to copy to the output
+         folder from $(PlatformTarget) at build time. On .NET Core/.NET 5+
+         this doesn't matter because the runtime's own deps.json + RID-graph
+         resolves the right one at process start regardless of how the
+         project was built; classic .NET Framework has no such mechanism, so
+         an AnyCPU build copies a native binary for some default architecture
+         that may not match the process's actual bitness at run time, and
+         Microsoft.Data.Sqlite throws "Library e_sqlite3 not found" / "%1 is
+         not a valid Win32 application". x64 here matches this dev machine;
+         a real classic-.NET-Framework consumer needs to pick x86 or x64
+         explicitly the same way. -->
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <!-- Async Main needs C# 7.1+; net48's own SDK default is lower. This is
+         a compile-time language feature choice, unrelated to what net48's
+         runtime itself supports. -->
+    <LangVersion>7.3</LangVersion>
+    <!-- SDK-style .NET Framework projects don't turn this on by default the
+         way ASP.NET/web projects historically did; without it, the many
+         transitive Microsoft.Extensions.*/System.* package references
+         pulled in by Nafas.Observability and Nafas.Observability.Server
+         (see their own csproj comments) would need hand-written binding
+         redirects in App.config, exactly the kind of classic-.NET-Framework
+         packaging pain this sample is meant to prove isn't actually a
+         problem here. -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nafas.Observability\Nafas.Observability.csproj" />
+    <ProjectReference Include="..\Nafas.Observability.Server\Nafas.Observability.Server.csproj" />
+  </ItemGroup>
+
+  <!--
+    Not already a transitive dependency of either Nafas project on net48;
+    both packages target netstandard2.0 and rely on the Generic Host
+    (Microsoft.Extensions.Hosting) to run their IHostedServices, but neither
+    one ships a concrete Host/HostBuilder itself (that's a hosting-model
+    choice left to the consumer, same as any other IHostedService-based
+    library). A real ASP.NET Core consumer gets this for free from
+    WebApplicationBuilder; this project is the one place in the solution
+    that doesn't, so it's referenced directly here.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -169,7 +169,11 @@ HTTP.sys, which refuses to bind any prefix other than "localhost" unless
 the process runs elevated or a URL ACL was reserved beforehand, verified
 empirically). Being plain `netstandard2.0` like the core package itself,
 this also works from classic .NET Framework 4.6.1+ apps, not just modern
-.NET.
+.NET — confirmed against a real net48 console host, not just the TFM
+compatibility rules, in
+[`Nafas.Observability.Server.NetFrameworkSample`](Nafas.Observability.Server.NetFrameworkSample)
+(see [Requirements](#requirements) for the one net48-specific gotcha it
+also caught, around SQLite and `PlatformTarget`).
 
 ```bash
 dotnet add package Nafas.Observability.Server
@@ -283,6 +287,21 @@ shared across instances — use SQL Server for that case.
      .NET Core 2.x on Linux/macOS) — reports `0`. This path is explicitly
      gated to Windows only, so a Linux container never attempts a
      `kernel32.dll` call in the first place.
+- **Classic .NET Framework + SQLite: set an explicit `PlatformTarget`.**
+  `netstandard2.0` compatibility means .NET Framework can *reference* this
+  package, but the SQLite native driver still needs to know which
+  architecture to load. On .NET Core/.NET 5+, the runtime's own RID-graph
+  resolves this automatically regardless of how the project was built; on
+  classic .NET Framework there's no such mechanism, so an `AnyCPU` build
+  can copy a native `e_sqlite3.dll` that doesn't match the process's actual
+  bitness at run time, failing with `Library e_sqlite3 not found` / `%1 is
+  not a valid Win32 application`. Set `<PlatformTarget>x64</PlatformTarget>`
+  (or `x86`, matching your deployment) and `<Prefer32Bit>false</Prefer32Bit>`
+  explicitly in the consuming `.csproj` to fix it — verified against a real
+  net48 console host in
+  [`Nafas.Observability.Server.NetFrameworkSample`](Nafas.Observability.Server.NetFrameworkSample),
+  see that project's own `.csproj` comment. SQL Server storage isn't
+  affected (no native driver to resolve this way).
 
 ## How it's built internally
 
@@ -328,6 +347,13 @@ For anyone evaluating this beyond the quick start:
   a WPF app demonstrating it, with a settings-screen-style checkbox to
   enable/disable the dashboard server, pick its port, and choose
   localhost-only vs. LAN access at runtime.
+- [`Nafas.Observability.Server.NetFrameworkSample/`](Nafas.Observability.Server.NetFrameworkSample) —
+  a plain `net48` console app; not a usage pattern to copy (a real .NET
+  Framework consumer wouldn't normally need the Generic Host boilerplate
+  shown here), but an actual classic .NET Framework process used to
+  empirically verify the whole stack (storage, ingestion, and the
+  `TcpListener`-based HTTP server) rather than just relying on
+  `netstandard2.0`'s TFM compatibility claim.
 
 ## Local development
 

@@ -125,6 +125,29 @@ namespace Nafas.Observability
             // this package new-ing up its own HttpClient.
             services.AddHttpClient<INafasAlertWebhookSender, NafasAlertWebhookSender>();
 
+            // Registered first, and deliberately before every hosted service
+            // that could touch the database -- the generic host starts
+            // IHostedServices in registration order, AWAITING each one's own
+            // StartAsync before moving to the next (see
+            // Microsoft.Extensions.Hosting.Internal.Host.StartAsync). This
+            // one's StartAsync fully awaits EnsureCreatedAsync (its own
+            // comment), so registering it first guarantees the tables exist
+            // before NafasIngestionWriterHostedService below is even started.
+            // That matters because NafasIngestionWriterHostedService is a
+            // BackgroundService, whose StartAsync returns as soon as its
+            // ExecuteAsync loop is scheduled, NOT once that loop finishes --
+            // so it being registered *after* this one is only safe because
+            // "after" here means "started only once schema init's own
+            // StartAsync has already returned", not just "listed later".
+            // Previously this was registered after the ingestion services,
+            // which raced: the writer's drain loop could start pulling
+            // already-queued records (even schema init's own "Ensuring
+            // Nafas tables exist..." log line is itself ingested, via
+            // NafasLoggerProvider below) and fail with "no such table:
+            // nafas_logs" on a cold start, before EnsureCreatedAsync had
+            // actually finished running on its own concurrent path.
+            services.AddHostedService<NafasSchemaInitializationHostedService>();
+
             // ---- Real ingestion (Ingestion/) -- turns "the dashboard
             // exists" into "the dashboard shows this app's own real
             // logs/metrics/traces", with no code changes required in the
@@ -141,9 +164,12 @@ namespace Nafas.Observability
             services.AddHostedService<NafasActivityIngestionHostedService>();
             services.AddHostedService<NafasMeterIngestionHostedService>();
             services.AddHostedService<NafasResourceMetricsHostedService>();
+            // The one ingestion hosted service that actually writes to the
+            // database (every listener above only ever enqueues) -- must
+            // stay registered after NafasSchemaInitializationHostedService
+            // above; see that registration's own comment for why.
             services.AddHostedService<NafasIngestionWriterHostedService>();
 
-            services.AddHostedService<NafasSchemaInitializationHostedService>();
             services.AddHostedService<NafasRetentionHostedService>();
             // Evaluates nafas_alert_rules against real ingested data and
             // opens/resolves nafas_alert_incidents -- see its own comment.

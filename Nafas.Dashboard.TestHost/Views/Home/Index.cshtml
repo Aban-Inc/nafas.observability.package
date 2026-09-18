@@ -5,4 +5,11 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    @* This is the whole point of this test host: confirm app.UseNafasDashboard("/nafas")
+       (see Program.cs) is actually reachable and working, mounted at a path this
+       app chose itself, not something the package forced. *@
+    <p>
+        <a class="btn btn-primary" href="~/nafas">Open the Nafas dashboard</a>
+    </p>
 </div>

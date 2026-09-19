@@ -39,14 +39,14 @@ separate process to run or deploy. One NuGet package, two lines in
 
 Standing up observability for a small or medium ASP.NET Core service
 usually means an OTel Collector, a time-series database, and a separate
-dashboard to run and secure — real infrastructure for a problem that's
+dashboard to run and secure: real infrastructure for a problem that's
 often just "let me see recent errors and know when something breaks."
 Nafas is the alternative for that case: it lives inside your application's
 own process, stores data in a local SQLite file (or your existing SQL
 Server) by default, and needs nothing external to run.
 
-It is not a replacement for a full OTel/Prometheus/Grafana stack at scale
-— it does not federate across services, it does not do long-term
+It is not a replacement for a full OTel/Prometheus/Grafana stack at scale.
+It does not federate across services, it does not do long-term
 high-cardinality storage, and it does not export to other backends. It is
 for the case where a single self-hosted app (or a handful of them sharing
 a database) needs real logs, metrics, traces, and threshold-based alerting
@@ -76,7 +76,7 @@ app.UseNafasDashboard("/nafas"); // -> https://your-app/nafas
 app.Run();
 ```
 
-That's it — no instrumentation code to add anywhere else. Every
+That's it: no instrumentation code to add anywhere else. Every
 `ILogger` call, every `Activity`/span (including ASP.NET Core's own
 per-request span), and every `Meter` measurement (including ASP.NET Core
 8+'s built-in request-duration metric) your app already produces is
@@ -86,24 +86,24 @@ directly inside your own app, in English or Persian, light or dark.
 ## What gets captured, and how
 
 Nafas hooks into the same extension points ASP.NET Core and
-`Microsoft.Extensions.Logging`/`System.Diagnostics` already expose — it
+`Microsoft.Extensions.Logging`/`System.Diagnostics` already expose. It
 does not require replacing `ILogger<T>`, wrapping `HttpClient`, or adding
 any `[Trace]`-style attributes to your code:
 
 | Signal | Source | Notes |
 |---|---|---|
 | Logs | An `ILoggerProvider` registered alongside your existing providers | Every `ILogger.Log*` call in the app, correlated to the active `Activity` when there is one |
-| Traces | A process-wide `System.Diagnostics.ActivityListener` | Listens to every `ActivitySource`, including ASP.NET Core's own built-in per-request activity — no manual span creation needed for basic request tracing |
+| Traces | A process-wide `System.Diagnostics.ActivityListener` | Listens to every `ActivitySource`, including ASP.NET Core's own built-in per-request activity; no manual span creation needed for basic request tracing |
 | Metrics | A process-wide `System.Diagnostics.Metrics.MeterListener` | Listens to every `Meter`, including ASP.NET Core 8+'s built-in `http.server.request.duration`, from which request-rate is also derived |
-| Resource usage | A native sampler (`Process` + `GC.GetGCMemoryInfo()`, with a Windows-API fallback — see [Requirements](#requirements)) | CPU and memory usage of the running process, sampled on an interval |
+| Resource usage | A native sampler (`Process` + `GC.GetGCMemoryInfo()`, with a Windows-API fallback; see [Requirements](#requirements)) | CPU and memory usage of the running process, sampled on an interval |
 
 All of it is written through a bounded, non-blocking queue
 (`System.Threading.Channels`) so a burst of telemetry never applies
-backpressure to your request pipeline — under sustained overload, Nafas
+backpressure to your request pipeline. Under sustained overload, Nafas
 drops its own data rather than slow your app down. A dedicated background
 service drains and batches that queue into storage, and the dashboard's
 live views (the log stream, in particular) are pushed to the browser over
-Server-Sent Events at write time — they are not a polling query against
+Server-Sent Events at write time; they are not a polling query against
 the database.
 
 ## Configuration
@@ -114,22 +114,22 @@ All of these are set inside `AddNafasServer(options => { ... })`.
 |---|---|---|
 | `Provider` | `DatabaseProvider.Sqlite` | `Sqlite` or `SqlServer` |
 | `ConnectionString` | `Data Source=nafas.db` (SQLite only) | Set directly, or use `ConnectionStringName` instead |
-| `ConnectionStringName` | — | Resolves from `appsettings.json`'s `ConnectionStrings` section first, then classic `web.config`'s `<connectionStrings>` |
-| `Schema` | `dbo` | SQL Server only — keeps Nafas's tables under a named schema, separate from the rest of your database |
+| `ConnectionStringName` | *(none)* | Resolves from `appsettings.json`'s `ConnectionStrings` section first, then classic `web.config`'s `<connectionStrings>` |
+| `Schema` | `dbo` | SQL Server only: keeps Nafas's tables under a named schema, separate from the rest of your database |
 | `RetentionDays` | `30` | How long logs/metrics/traces are kept before a background sweep deletes them |
-| `AlertWebhookUrl` | — | Where alert incidents are POSTed as JSON. Alert rules and incidents still work without it; nothing gets delivered anywhere until it's set |
+| `AlertWebhookUrl` | *(none)* | Where alert incidents are POSTed as JSON. Alert rules and incidents still work without it; nothing gets delivered anywhere until it's set |
 | `ServiceName` | `IHostEnvironment.ApplicationName` | Overrides the service name stamped on everything ingested |
-| `Authorize` | `null` (local requests only) | Gates every request to the dashboard — see [Security](#security) |
+| `Authorize` | `null` (local requests only) | Gates every request to the dashboard; see [Security](#security) |
 
 `UseNafasDashboard(path)` takes the mount path for the dashboard UI itself
-(default `"/nafas"`) — pick any path your app isn't already using.
+(default `"/nafas"`). Pick any path your app isn't already using.
 
 ## Security
 
-The dashboard shows logs, traces, and metrics — which routinely carry
+The dashboard shows logs, traces, and metrics, which routinely carry
 sensitive data (request bodies, stack traces, connection strings inside
 exception messages). By default, `UseNafasDashboard` only serves requests
-that come from the local machine — the same default posture as
+that come from the local machine, the same default posture as
 [Hangfire's own dashboard](https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization).
 Every other request gets a `403`.
 
@@ -148,28 +148,28 @@ builder.Services.AddNafasServer(options =>
 
 If you don't set `Authorize` and the dashboard doesn't load from where you
 expect (a phone on the same network, a teammate's machine, behind a
-reverse proxy), this is why — set it explicitly once you know who should
+reverse proxy), this is why. Set it explicitly once you know who should
 be allowed in.
 
 ## Desktop and other non-ASP.NET Core apps
 
-`UseNafasDashboard` needs an `IApplicationBuilder` to mount onto — a plain
+`UseNafasDashboard` needs an `IApplicationBuilder` to mount onto. A plain
 WinForms, WPF, or console/worker app has no ASP.NET Core pipeline of its
 own to provide one. `Nafas.Observability.Server` is a separate, optional
 package for exactly that case: it runs a second, independent HTTP listener
 (on its own port) that serves the same dashboard against the same running
-app's real data — no Kestrel, no OWIN, just a minimal HTTP/1.1 server
+app's real data. No Kestrel, no OWIN, just a minimal HTTP/1.1 server
 directly on `TcpListener` (see
 [`Nafas.Observability.Server/Nafas.Observability.Server.csproj`](Nafas.Observability.Server/Nafas.Observability.Server.csproj)'s
 own comment for why: the last version of Kestrel ever published as a plain
 NuGet package is 2.3.13 from 2019, with no HTTP/2 and no security patches
-since, and `System.Net.HttpListener` — the BCL's own listener — turned out
+since, and `System.Net.HttpListener` (the BCL's own listener) turned out
 not to be usable for the LAN case either: on Windows it's backed by
 HTTP.sys, which refuses to bind any prefix other than "localhost" unless
 the process runs elevated or a URL ACL was reserved beforehand, verified
 empirically). Being plain `netstandard2.0` like the core package itself,
 this also works from classic .NET Framework 4.6.1+ apps, not just modern
-.NET — confirmed against a real net48 console host, not just the TFM
+.NET. Confirmed against a real net48 console host, not just the TFM
 compatibility rules, in
 [`Nafas.Observability.Server.NetFrameworkSample`](Nafas.Observability.Server.NetFrameworkSample)
 (see [Requirements](#requirements) for the one net48-specific gotcha it
@@ -190,13 +190,13 @@ services.AddNafasHttpServer(o =>
 ```
 
 then open `http://localhost:5099/nafas`. `NafasHttpServerOptions.Enabled` is
-only read once at startup — to start/stop/reconfigure it later (e.g. a
+only read once at startup. To start/stop/reconfigure it later (e.g. a
 settings screen's "enable dashboard" checkbox), resolve `NafasHttpServer`
 from DI and call its `StartAsync`/`StopAsync` directly; see
 [`Nafas.Observability.Server.Sample/`](Nafas.Observability.Server.Sample)
 for a worked WPF example.
 
-`AccessMode` only controls which network interface is bound —
+`AccessMode` only controls which network interface is bound:
 `LocalhostOnly` (the default) binds loopback only, `Lan` binds every
 interface so other devices on the network can reach the port via this
 machine's own IP, with no administrator rights required either way (unlike
@@ -206,7 +206,7 @@ default, see [Security](#security)): set `Authorize` explicitly too if
 `Lan` should actually let those requests through, otherwise they still get
 a `403`.
 
-One request per connection, not HTTP/1.1 keep-alive — this listener is a
+One request per connection, not HTTP/1.1 keep-alive. This listener is a
 local/LAN admin tool, not a public high-throughput API, so giving up
 connection reuse (an extra TCP handshake per dashboard API call,
 imperceptible on localhost/LAN) removes an entire dimension of correctness
@@ -217,7 +217,7 @@ own comment.
 ## Alerting
 
 Threshold and absence rules are defined from the dashboard itself (Alerts
-page) — no code required to create one. A background evaluator polls
+page). No code required to create one. A background evaluator polls
 every 30 seconds and fires **only on state transitions** (an incident
 opens when a rule first goes out of bounds, and resolves when it recovers)
 so a rule that stays broken for an hour doesn't re-notify every cycle.
@@ -238,19 +238,19 @@ JSON, and your own system takes it from there:
 }
 ```
 
-A failed webhook delivery is logged and retried on the next transition —
-it never fails the request pipeline, and the incident still exists in the
+A failed webhook delivery is logged and retried on the next transition; it
+never fails the request pipeline, and the incident still exists in the
 dashboard's own incident list regardless of whether delivery succeeded.
 
 ## Multi-instance deployments
 
-Nafas has no concept of a central collector — each instance that calls
+Nafas has no concept of a central collector: each instance that calls
 `AddNafasServer()` ingests and stores its own process's telemetry. Two
 common setups:
 
-- **Single instance** — the default. Nothing to configure; `ServiceName`
+- **Single instance**: the default. Nothing to configure; `ServiceName`
   resolves to `IHostEnvironment.ApplicationName`.
-- **Multiple instances sharing one SQL Server database** — point every
+- **Multiple instances sharing one SQL Server database**: point every
   instance's `ConnectionString`/`ConnectionStringName` at the same
   database and give each a distinct `ServiceName`. All of them write to
   the same tables and are distinguishable in every dashboard view by
@@ -258,7 +258,7 @@ common setups:
   them.
 
 SQLite is a single-file, single-process store and is not meant to be
-shared across instances — use SQL Server for that case.
+shared across instances. Use SQL Server for that case.
 
 ## Requirements
 
@@ -266,25 +266,25 @@ shared across instances — use SQL Server for that case.
   the consuming app's side: **.NET Core 2.0+, .NET 5+, or classic .NET
   Framework 4.6.1+** can all reference it (`ConnectionStringName`'s
   classic `web.config` support exists for exactly that last case).
-- ASP.NET Core only for the core package — `UseNafasDashboard` requires
+- ASP.NET Core only for the core package. `UseNafasDashboard` requires
   `IApplicationBuilder`. For WinForms/WPF/console apps, see
   [`Nafas.Observability.Server`](#desktop-and-other-non-aspnet-core-apps)
   instead.
 - SQLite (zero setup) or SQL Server 2016+ for storage.
-- `memoryUsage` (one of several resource metrics — logs, traces, CPU
+- `memoryUsage` (one of several resource metrics; logs, traces, CPU
   usage, and alerting are all unaffected either way) is read differently
   depending on the host, in this order:
-  1. **.NET Core 3.0+ / .NET 5+** (the common case) — `GC.GetGCMemoryInfo()`,
-     which is container-aware: it reflects a cgroup or Docker memory limit
+  1. **.NET Core 3.0+ / .NET 5+** (the common case): `GC.GetGCMemoryInfo()`,
+     which is container-aware. It reflects a cgroup or Docker memory limit
      when one is set, not just physical host RAM.
-  2. **Classic .NET Framework 4.6.1+, or .NET Core 2.x, on Windows** —
+  2. **Classic .NET Framework 4.6.1+, or .NET Core 2.x, on Windows**:
      falls back to the Win32 `GlobalMemoryStatusEx` API (the same one
      .NET Framework apps have always used for this, no managed equivalent
      exists there). This reports whole-machine physical memory, **not**
      container/Job-Object-aware, so a process capped by a Job Object
      memory limit will under-report here.
   3. **Any non-Windows host without `GC.GetGCMemoryInfo()`** (practically:
-     .NET Core 2.x on Linux/macOS) — reports `0`. This path is explicitly
+     .NET Core 2.x on Linux/macOS): reports `0`. This path is explicitly
      gated to Windows only, so a Linux container never attempts a
      `kernel32.dll` call in the first place.
 - **Classic .NET Framework + SQLite: set an explicit `PlatformTarget`.**
@@ -297,7 +297,7 @@ shared across instances — use SQL Server for that case.
   bitness at run time, failing with `Library e_sqlite3 not found` / `%1 is
   not a valid Win32 application`. Set `<PlatformTarget>x64</PlatformTarget>`
   (or `x86`, matching your deployment) and `<Prefer32Bit>false</Prefer32Bit>`
-  explicitly in the consuming `.csproj` to fix it — verified against a real
+  explicitly in the consuming `.csproj` to fix it. Verified against a real
   net48 console host in
   [`Nafas.Observability.Server.NetFrameworkSample`](Nafas.Observability.Server.NetFrameworkSample),
   see that project's own `.csproj` comment. SQL Server storage isn't
@@ -315,17 +315,17 @@ For anyone evaluating this beyond the quick start:
   persists them.
 - **Storage** (`Storage/`) is a thin interface
   (`INafasIngestionWriter`/`INafasQueryStore`) with two concrete
-  implementations, SQLite and SQL Server — no ORM, parameterized SQL,
+  implementations, SQLite and SQL Server. No ORM, parameterized SQL,
   schema created and migrated at startup.
 - **Alert evaluation** (`NafasAlertEvaluationHostedService`) is a polling
   `BackgroundService` reusing the same query layer the dashboard's KPI
   views use, tracking one open-incident-per-rule at a time.
 - **Real-time delivery** to the browser is an in-process pub/sub
   (`NafasLiveFeed`) fed by the ingestion writer and alert evaluator, read
-  by the dashboard's SSE endpoints — nothing here is a polling query.
+  by the dashboard's SSE endpoints. Nothing here is a polling query.
 - **The dashboard UI** (`ClientApp/`) is a Vue 3 + Vite SPA (PrimeVue,
   Pinia, Chart.js, vue-i18n for English/Persian), built ahead of time and
-  embedded directly into the assembly as embedded resources — a consumer
+  embedded directly into the assembly as embedded resources. A consumer
   installing the package gets the whole UI with no separate static-file
   deployment step, and no Node.js runtime on the host machine.
 - The whole `api/*` surface (`NafasDashboardEndpoints.cs`) is a small
@@ -336,18 +336,18 @@ For anyone evaluating this beyond the quick start:
 
 ## Repository layout
 
-- [`Nafas.Observability/`](Nafas.Observability) — the package itself.
-- [`Nafas.Dashboard.TestHost/`](Nafas.Dashboard.TestHost) — a minimal
+- [`Nafas.Observability/`](Nafas.Observability): the package itself.
+- [`Nafas.Dashboard.TestHost/`](Nafas.Dashboard.TestHost): a minimal
   ASP.NET Core app used to manually verify the package end to end; not a
   usage example to copy patterns from.
-- [`Nafas.Observability.Server/`](Nafas.Observability.Server) — the
+- [`Nafas.Observability.Server/`](Nafas.Observability.Server): the
   optional standalone HTTP listener package for non-ASP.NET Core apps (no
   Kestrel, no OWIN); see [Desktop and other non-ASP.NET Core apps](#desktop-and-other-non-aspnet-core-apps).
-- [`Nafas.Observability.Server.Sample/`](Nafas.Observability.Server.Sample) —
+- [`Nafas.Observability.Server.Sample/`](Nafas.Observability.Server.Sample):
   a WPF app demonstrating it, with a settings-screen-style checkbox to
   enable/disable the dashboard server, pick its port, and choose
   localhost-only vs. LAN access at runtime.
-- [`Nafas.Observability.Server.NetFrameworkSample/`](Nafas.Observability.Server.NetFrameworkSample) —
+- [`Nafas.Observability.Server.NetFrameworkSample/`](Nafas.Observability.Server.NetFrameworkSample):
   a plain `net48` console app; not a usage pattern to copy (a real .NET
   Framework consumer wouldn't normally need the Generic Host boilerplate
   shown here), but an actual classic .NET Framework process used to
@@ -358,7 +358,7 @@ For anyone evaluating this beyond the quick start:
 ## Local development
 
 For normal use of the published package, no Node.js/npm step is needed at
-all — the dashboard UI is already built and committed under
+all. The dashboard UI is already built and committed under
 `Nafas.Observability/wwwroot/`. Just build the solution:
 
 ```bash
@@ -392,7 +392,7 @@ source on every publish, so a tagged release never ships a stale UI.
 
 **Feature-complete for the free tier.** Logs, metrics, traces, alerting,
 the embedded dashboard, and the standalone desktop/console server
-(`Nafas.Observability.Server`) are all shipped — no further feature work
+(`Nafas.Observability.Server`) are all shipped. No further feature work
 is planned for this scope. From here, changes to the free tier are bug
 fixes and hardening, not new capability.
 
@@ -406,7 +406,7 @@ to stay stable regardless.
 
 ## License
 
-[FSL-1.1-ALv2](https://fsl.software) — free to use, modify and redistribute
+[FSL-1.1-ALv2](https://fsl.software): free to use, modify and redistribute
 for any purpose other than building a competing product or service; each
 release converts to the Apache License, Version 2.0 two years after it
 ships. See [LICENSE.md](Nafas.Observability/LICENSE.md).

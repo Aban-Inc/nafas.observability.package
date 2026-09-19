@@ -390,18 +390,19 @@ source on every publish, so a tagged release never ships a stale UI.
 
 ## Status
 
-Pre-1.0 (see the NuGet badges at the top of this file for the exact
-versions) — real ingestion, storage, dashboard, and alert evaluation all
-work and are exercised through `Nafas.Dashboard.TestHost`, but this has
-not yet run in a production deployment. The public API surface
-(`NafasServerOptions`, `UseNafasDashboard`) is expected to stay stable,
-but has not been through a real upgrade cycle yet.
+**Feature-complete for the free tier.** Logs, metrics, traces, alerting,
+the embedded dashboard, and the standalone desktop/console server
+(`Nafas.Observability.Server`) are all shipped — no further feature work
+is planned for this scope. From here, changes to the free tier are bug
+fixes and hardening, not new capability.
 
-`Nafas.Observability.Server` is newer still (its first release) — exercised
-through the smoke-tested scenarios described in its own comments (static
-files, the JSON API, SSE streaming, restart/stop, the local-only security
-default, and genuine LAN reachability without administrator rights), but,
-like the core package, not yet through a real desktop deployment.
+Still pre-1.0 (see the NuGet badges at the top of this file for the exact
+versions), and that status is about proof, not scope: real ingestion,
+storage, dashboard, and alert evaluation all work and are exercised
+through `Nafas.Dashboard.TestHost`, but neither package has yet run in a
+real production deployment or been through a real upgrade cycle. The
+public API surface (`NafasServerOptions`, `UseNafasDashboard`) is expected
+to stay stable regardless.
 
 ## License
 
